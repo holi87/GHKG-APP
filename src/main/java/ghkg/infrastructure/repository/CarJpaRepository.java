@@ -4,12 +4,13 @@ import ghkg.domain.Car;
 import ghkg.domain.CarRepository;
 import ghkg.domain.FuelType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface CarJpaRepository extends JpaRepository<Car, UUID>, CarRepository {
+public interface CarJpaRepository extends JpaRepository<Car, UUID>,JpaSpecificationExecutor<Car>, CarRepository {
     List<Car> findByFuelType(FuelType fuelType);
 }

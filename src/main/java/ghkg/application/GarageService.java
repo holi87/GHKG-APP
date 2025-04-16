@@ -1,12 +1,14 @@
 package ghkg.application;
 
 import ghkg.api.exception.CarNotFoundException;
-import ghkg.api.exception.InvalidCarDataException;
 import ghkg.application.validation.CarValidator;
 import ghkg.domain.Car;
 import ghkg.domain.CarRepository;
 import ghkg.domain.FuelType;
+import ghkg.dto.CarFilterDto;
+import ghkg.infrastructure.spec.CarSpecifications;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,5 +46,14 @@ public class GarageService {
 
     public List<Car> getCarsByFuelType(FuelType type) {
         return carRepository.findByFuelType(type);
+    }
+
+    public List<Car> findByFilter(CarFilterDto filter) {
+        Specification<Car> spec = Specification.where(CarSpecifications.nameContains(filter.getName()))
+                .and(CarSpecifications.fuelTypeIs(filter.getType()))
+                .and(CarSpecifications.minCapacity(filter.getMinCapacity()))
+                .and(CarSpecifications.maxCapacity(filter.getMaxCapacity()));
+
+        return carRepository.findAll(spec);
     }
 }

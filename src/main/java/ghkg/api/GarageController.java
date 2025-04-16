@@ -2,6 +2,7 @@ package ghkg.api;
 
 import ghkg.domain.FuelType;
 import ghkg.dto.CarDto;
+import ghkg.dto.CarFilterDto;
 import ghkg.mapper.CarMapper;
 import ghkg.application.GarageService;
 import lombok.RequiredArgsConstructor;
@@ -12,45 +13,46 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/garage")
+@RequestMapping(
+        value = "/api/v1/cars",
+        produces = "application/json",
+        consumes = "application/json"
+)
 @RequiredArgsConstructor
 public class GarageController {
 
     private final GarageService garageService;
 
-    @GetMapping
-    public List<CarDto> getAllCars() {
-        return garageService.getAllCars()
-                .stream()
+    @GetMapping("/all")
+    public List<CarDto> getAll(@ModelAttribute CarFilterDto filter) {
+        return garageService.findByFilter(filter).stream()
                 .map(CarMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public CarDto getCarById(@PathVariable UUID id) {
+    public CarDto getById(@PathVariable UUID id) {
         return CarMapper.toDto(garageService.getCarById(id));
     }
 
-    @GetMapping("/type/{fuelType}")
-    public List<CarDto> getCarsByFuel(@PathVariable FuelType fuelType) {
-        return garageService.getCarsByFuelType(fuelType)
-                .stream()
+    @GetMapping
+    public List<CarDto> getFilteredCars(@ModelAttribute CarFilterDto filter) {
+        return garageService.findByFilter(filter).stream()
                 .map(CarMapper::toDto)
                 .collect(Collectors.toList());
     }
-
     @PostMapping
-    public CarDto addCar(@RequestBody CarDto dto) {
+    public CarDto add(@RequestBody CarDto dto) {
         return CarMapper.toDto(garageService.addCar(CarMapper.fromDto(dto)));
     }
 
     @PutMapping("/{id}")
-    public CarDto updateCar(@PathVariable UUID id, @RequestBody CarDto dto) {
+    public CarDto update(@PathVariable UUID id, @RequestBody CarDto dto) {
         return CarMapper.toDto(garageService.updateCar(id, CarMapper.fromDto(dto)));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCar(@PathVariable UUID id) {
+    public void delete(@PathVariable UUID id) {
         garageService.deleteCar(id);
     }
 }
