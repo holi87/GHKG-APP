@@ -13,6 +13,7 @@
         <h2.version>2.3.232</h2.version>
         <lombok.version>1.18.38</lombok.version>
         <springdoc.openapi.starter.version>2.8.6</springdoc.openapi.starter.version>
+        <mockito.version>5.9.0</mockito.version>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -54,7 +55,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
