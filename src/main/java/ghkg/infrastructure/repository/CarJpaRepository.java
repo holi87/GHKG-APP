@@ -1,0 +1,15 @@
+package ghkg.infrastructure.repository;
+
+import ghkg.domain.Car;
+import ghkg.domain.CarRepository;
+import ghkg.domain.FuelType;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public interface CarJpaRepository extends JpaRepository<Car, UUID>, CarRepository {
+    List<Car> findByFuelType(FuelType fuelType);
+}

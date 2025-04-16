@@ -1,12 +1,11 @@
 package ghkg.mapper;
 
-import ghkg.model.Car;
+import ghkg.domain.Car;
 import ghkg.dto.CarDto;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class CarMapper {
-
     public static CarDto toDto(Car car) {
         return CarDto.builder()
                 .id(car.getId())

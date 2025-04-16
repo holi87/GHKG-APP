@@ -1,6 +1,6 @@
 package ghkg.dto;
 
-import ghkg.model.FuelType;
+import ghkg.domain.FuelType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
