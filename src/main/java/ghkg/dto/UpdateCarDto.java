@@ -4,7 +4,7 @@ import ghkg.domain.FuelType;
 
 import java.util.UUID;
 
-public record CarDto(
+public record UpdateCarDto(
         UUID id,
         String name,
         FuelType fuelType,

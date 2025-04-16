@@ -1,7 +1,11 @@
 package ghkg.api;
 
+import ghkg.api.exception.InvalidCarDataException;
+import ghkg.domain.Car;
 import ghkg.dto.CarDto;
 import ghkg.dto.CarFilterDto;
+import ghkg.dto.CreateCarDto;
+import ghkg.dto.UpdateCarDto;
 import ghkg.mapper.CarMapper;
 import ghkg.application.GarageService;
 import lombok.RequiredArgsConstructor;
@@ -41,13 +45,16 @@ public class GarageController {
                 .collect(Collectors.toList());
     }
     @PostMapping
-    public CarDto add(@RequestBody CarDto dto) {
-        return CarMapper.toDto(garageService.addCar(CarMapper.fromDto(dto)));
+    public CarDto add(@RequestBody CreateCarDto dto) {
+        return CarMapper.toDto(garageService.addCar(CarMapper.fromCreateDto(dto)));
     }
 
-    @PutMapping("/{id}")
-    public CarDto update(@PathVariable UUID id, @RequestBody CarDto dto) {
-        return CarMapper.toDto(garageService.updateCar(id, CarMapper.fromDto(dto)));
+    public CarDto update(@PathVariable UUID id, @RequestBody UpdateCarDto dto) {
+        if (!id.equals(dto.id())) {
+            throw new InvalidCarDataException("Path ID and payload ID do not match");
+        }
+        Car car = CarMapper.fromUpdateDto(dto);
+        return CarMapper.toDto(garageService.updateCar(id, car));
     }
 
     @DeleteMapping("/{id}")

@@ -9,12 +9,14 @@ import ghkg.infrastructure.spec.CarSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class GarageService {
 
     private final CarRepository carRepository;
@@ -40,6 +42,9 @@ public class GarageService {
     }
 
     public void deleteCar(UUID id) {
+        if (!carRepository.existsById(id)) {
+            throw new CarNotFoundException("Car with ID " + id + " not found");
+        }
         carRepository.deleteById(id);
     }
 

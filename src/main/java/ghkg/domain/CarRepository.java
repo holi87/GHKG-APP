@@ -12,5 +12,5 @@ public interface CarRepository {
     Car save(Car car);
     void deleteById(UUID id);
     List<Car> findAll(Specification<Car> spec);
-
+    boolean existsById(UUID id);
 }
