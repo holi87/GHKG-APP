@@ -17,12 +17,19 @@ import org.mockito.MockitoAnnotations;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 class GarageControllerTest {
+    // Constants for test data
+    private static final String TEST_CAR_NAME = "Test Car";
+    private static final String UPDATED_CAR_NAME = "Updated Car";
+    private static final FuelType DEFAULT_FUEL_TYPE = FuelType.GASOLINE;
+    private static final FuelType UPDATED_FUEL_TYPE = FuelType.DIESEL;
+    private static final int DEFAULT_ENGINE_CAPACITY = 4;
+    private static final int UPDATED_ENGINE_CAPACITY = 5;
+    private static final String ID_MISMATCH_ERROR = "Path ID and payload ID do not match";
 
     @Mock
     private GarageService garageService;
@@ -30,86 +37,112 @@ class GarageControllerTest {
     @InjectMocks
     private GarageController garageController;
 
-    private Car car;
-    private CarDto carDto;
+    private UUID carId;
+    private Car testCar;
+    private CarDto testCarDto;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        car = new Car();
-        car.setId(UUID.randomUUID());
-        car.setName("Test Car");
+        carId = UUID.randomUUID();
+        
+        // Use builder pattern for more readable object creation
+        testCar = Car.builder()
+                .id(carId)
+                .name(TEST_CAR_NAME)
+                .fuelType(DEFAULT_FUEL_TYPE)
+                .engineCapacity(DEFAULT_ENGINE_CAPACITY)
+                .build();
 
-        carDto = CarMapper.toDto(car);
+        testCarDto = CarMapper.toDto(testCar);
     }
 
     @Test
-    void getAll_ShouldReturnAllCars() {
-        when(garageService.getAllCars()).thenReturn(List.of(car));
-
+    void shouldReturnAllCarsWhenGetAllIsCalled() {
+        // Arrange
+        when(garageService.getAllCars()).thenReturn(List.of(testCar));
+        
+        // Act
         List<CarDto> cars = garageController.getAll();
-
-        assertEquals("Size mismatch", 1, cars.size());
-        assertEquals("Name mismatch", "Test Car", cars.get(0).name());
-        verify(garageService, times(1)).getAllCars();
+        
+        // Assert
+        assertEquals(1, cars.size());
+        assertEquals(TEST_CAR_NAME, cars.get(0).name());
+        verify(garageService).getAllCars();
     }
 
     @Test
-    void getById_ShouldReturnCar_WhenExists() {
-        when(garageService.getCarById(car.getId())).thenReturn(car);
-
-        CarDto foundCar = garageController.getById(car.getId());
-
+    void shouldReturnCarWhenGetByIdIsCalledWithExistingId() {
+        // Arrange
+        when(garageService.getCarById(carId)).thenReturn(testCar);
+        
+        // Act
+        CarDto foundCar = garageController.getById(carId);
+        
+        // Assert
         assertNotNull(foundCar);
-        assertEquals("Name mismatch", "Test Car", foundCar.name());
-        verify(garageService, times(1)).getCarById(car.getId());
+        assertEquals(TEST_CAR_NAME, foundCar.name());
+        verify(garageService).getCarById(carId);
     }
 
     @Test
-    void add_ShouldSaveAndReturnCar() {
-        CreateCarDto createCarDto = new CreateCarDto("Test Car", FuelType.GASOLINE, 4);
-        when(garageService.addCar(any(Car.class))).thenReturn(car);
-
+    void shouldSaveAndReturnCarWhenAddIsCalled() {
+        // Arrange
+        CreateCarDto createCarDto = new CreateCarDto(TEST_CAR_NAME, DEFAULT_FUEL_TYPE, DEFAULT_ENGINE_CAPACITY);
+        when(garageService.addCar(any(Car.class))).thenReturn(testCar);
+        
+        // Act
         CarDto savedCar = garageController.add(createCarDto);
-
+        
+        // Assert
         assertNotNull(savedCar);
-        assertEquals("Name mismatch", "Test Car", savedCar.name());
-        verify(garageService, times(1)).addCar(any(Car.class));
+        assertEquals(TEST_CAR_NAME, savedCar.name());
+        verify(garageService).addCar(any(Car.class));
     }
 
     @Test
-    void delete_ShouldDeleteCar() {
-        doNothing().when(garageService).deleteCar(car.getId());
-
-        garageController.delete(car.getId());
-
-        verify(garageService, times(1)).deleteCar(car.getId());
+    void shouldDeleteCarWhenDeleteIsCalled() {
+        // Arrange
+        doNothing().when(garageService).deleteCar(carId);
+        
+        // Act
+        garageController.delete(carId);
+        
+        // Assert
+        verify(garageService).deleteCar(carId);
     }
 
     @Test
-    void update_ShouldUpdateAndReturnCar_WhenValidData() {
-        UpdateCarDto updateCarDto = new UpdateCarDto(car.getId(), "Updated Car", FuelType.DIESEL, 5);
+    void shouldUpdateAndReturnCarWhenUpdateIsCalledWithValidData() {
+        // Arrange
+        UpdateCarDto updateCarDto = new UpdateCarDto(carId, UPDATED_CAR_NAME, UPDATED_FUEL_TYPE, UPDATED_ENGINE_CAPACITY);
         Car updatedCar = CarMapper.fromUpdateDto(updateCarDto);
-        when(garageService.updateCar(car.getId(), updatedCar)).thenReturn(updatedCar);
-        when(CarMapper.toDto(updatedCar)).thenReturn(new CarDto(car.getId(), "Updated Car", FuelType.DIESEL, 5));
-
-        CarDto updatedCarDto = garageController.update(car.getId(), updateCarDto);
-
+        when(garageService.updateCar(carId, updatedCar)).thenReturn(updatedCar);
+        
+        // Act
+        CarDto updatedCarDto = garageController.update(carId, updateCarDto);
+        
+        // Assert
         assertNotNull(updatedCarDto);
-        assertEquals("Name mismatch", "Updated Car", updatedCarDto.name());
-        assertEquals("Fuel type mismatch", FuelType.DIESEL, updatedCarDto.fuelType());
-        assertEquals("Engine capacity mismatch", 5, updatedCarDto.engineCapacity());
-        verify(garageService, times(1)).updateCar(car.getId(), updatedCar);
+        assertEquals(UPDATED_CAR_NAME, updatedCarDto.name());
+        assertEquals(UPDATED_FUEL_TYPE, updatedCarDto.fuelType());
+        assertEquals(UPDATED_ENGINE_CAPACITY, updatedCarDto.engineCapacity());
+        verify(garageService).updateCar(carId, updatedCar);
     }
 
     @Test
-    void update_ShouldThrowException_WhenIdsDoNotMatch() {
-        UpdateCarDto updateCarDto = new UpdateCarDto(UUID.randomUUID(), "Updated Car", FuelType.DIESEL, 5);
-
-        InvalidCarDataException exception =
-                assertThrows(InvalidCarDataException.class, () -> garageController.update(car.getId(), updateCarDto));
-
-        assertEquals("Msg mismatch","Path ID and payload ID do not match", exception.getMessage());
+    void shouldThrowExceptionWhenUpdateIsCalledWithMismatchedIds() {
+        // Arrange
+        UUID differentId = UUID.randomUUID();
+        UpdateCarDto updateCarDto = new UpdateCarDto(differentId, UPDATED_CAR_NAME, UPDATED_FUEL_TYPE, UPDATED_ENGINE_CAPACITY);
+        
+        // Act & Assert
+        InvalidCarDataException exception = assertThrows(
+            InvalidCarDataException.class, 
+            () -> garageController.update(carId, updateCarDto)
+        );
+        
+        assertEquals(ID_MISMATCH_ERROR, exception.getMessage());
         verify(garageService, never()).updateCar(any(), any());
     }
 }

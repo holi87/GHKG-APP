@@ -21,101 +21,144 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class GarageServiceTest {
-
     @Mock
     private CarRepository carRepository;
-
+    
     @InjectMocks
     private GarageService garageService;
-
-    private Car car;
-
+    
+    private UUID testCarId;
+    private final String TEST_CAR_NAME = "Test Car";
+    
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        car = new Car();
-        car.setId(UUID.randomUUID());
-        car.setName("Test Car");
+        testCarId = UUID.randomUUID();
     }
-
+    
     @Test
-    void getAllCars_ShouldReturnAllCars() {
-        when(carRepository.findAll()).thenReturn(List.of(car));
-
+    void shouldReturnAllCars_whenGetAllCarsIsCalled() {
+        // Given
+        Car testCar = createTestCar(testCarId, TEST_CAR_NAME);
+        when(carRepository.findAll()).thenReturn(List.of(testCar));
+        
+        // When
         List<Car> cars = garageService.getAllCars();
-
+        
+        // Then
         assertEquals(1, cars.size());
-        assertEquals("Test Car", cars.get(0).getName());
-        verify(carRepository, times(1)).findAll();
+        assertEquals(TEST_CAR_NAME, cars.get(0).getName());
+        verify(carRepository).findAll();
     }
-
+    
     @Test
-    void getCarById_ShouldReturnCar_WhenExists() {
-        when(carRepository.findById(car.getId())).thenReturn(Optional.of(car));
-
-        Car foundCar = garageService.getCarById(car.getId());
-
+    void shouldReturnCar_whenCarExistsWithGivenId() {
+        // Given
+        Car testCar = createTestCar(testCarId, TEST_CAR_NAME);
+        when(carRepository.findById(testCarId)).thenReturn(Optional.of(testCar));
+        
+        // When
+        Car foundCar = garageService.getCarById(testCarId);
+        
+        // Then
         assertNotNull(foundCar);
-        assertEquals("Test Car", foundCar.getName());
-        verify(carRepository, times(1)).findById(car.getId());
+        assertEquals(TEST_CAR_NAME, foundCar.getName());
+        verify(carRepository).findById(testCarId);
     }
-
+    
     @Test
-    void getCarById_ShouldThrowException_WhenNotFound() {
-        when(carRepository.findById(car.getId())).thenReturn(Optional.empty());
-
-        assertThrows(CarNotFoundException.class, () -> garageService.getCarById(car.getId()));
-        verify(carRepository, times(1)).findById(car.getId());
+    void shouldThrowCarNotFoundException_whenCarDoesNotExistWithGivenId() {
+        // Given
+        when(carRepository.findById(testCarId)).thenReturn(Optional.empty());
+        
+        // When/Then
+        assertThrows(CarNotFoundException.class, () -> garageService.getCarById(testCarId));
+        verify(carRepository).findById(testCarId);
     }
-
+    
     @Test
-    void addCar_ShouldSaveAndReturnCar() {
-        when(carRepository.save(car)).thenReturn(car);
-
-        Car savedCar = garageService.addCar(car);
-
+    void shouldSaveAndReturnCar_whenAddCarIsCalledWithValidCar() {
+        // Given
+        Car testCar = createTestCar(testCarId, TEST_CAR_NAME);
+        when(carRepository.save(testCar)).thenReturn(testCar);
+        
+        // When
+        Car savedCar = garageService.addCar(testCar);
+        
+        // Then
         assertNotNull(savedCar);
-        assertEquals("Test Car", savedCar.getName());
-        verify(carRepository, times(1)).save(car);
+        assertEquals(TEST_CAR_NAME, savedCar.getName());
+        verify(carRepository).save(testCar);
     }
-
+    
     @Test
-    void addCar_ShouldThrowException_WhenCarIsInvalid() {
-        // This test would require PowerMockito or Mockito extension for static methods
-        // For now, we'll just test the exception behavior directly
-        car.setFuelType(FuelType.ELECTRIC);
-        car.setEngineCapacity(100); // Invalid for ELECTRIC cars
-
-        assertThrows(IllegalArgumentException.class, () -> garageService.addCar(car));
+    void shouldThrowIllegalArgumentException_whenAddCarIsCalledWithInvalidCar() {
+        // Given
+        Car invalidCar = createTestCar(testCarId, TEST_CAR_NAME);
+        invalidCar.setFuelType(FuelType.ELECTRIC);
+        invalidCar.setEngineCapacity(100); // Invalid for ELECTRIC cars
+        
+        // When/Then
+        assertThrows(IllegalArgumentException.class, () -> garageService.addCar(invalidCar));
         verify(carRepository, never()).save(any());
     }
-
+    
     @Test
-    void deleteCar_ShouldDeleteCar_WhenExists() {
-        when(carRepository.existsById(car.getId())).thenReturn(true);
-
-        garageService.deleteCar(car.getId());
-
-        verify(carRepository, times(1)).deleteById(car.getId());
+    void shouldDeleteCar_whenCarExistsWithGivenId() {
+        // Given
+        when(carRepository.existsById(testCarId)).thenReturn(true);
+        
+        // When
+        garageService.deleteCar(testCarId);
+        
+        // Then
+        verify(carRepository).deleteById(testCarId);
     }
-
+    
     @Test
-    void deleteCar_ShouldThrowException_WhenNotFound() {
-        when(carRepository.existsById(car.getId())).thenReturn(false);
-
-        assertThrows(CarNotFoundException.class, () -> garageService.deleteCar(car.getId()));
-        verify(carRepository, never()).deleteById(car.getId());
+    void shouldThrowCarNotFoundException_whenDeletingNonExistentCar() {
+        // Given
+        when(carRepository.existsById(testCarId)).thenReturn(false);
+        
+        // When/Then
+        assertThrows(CarNotFoundException.class, () -> garageService.deleteCar(testCarId));
+        verify(carRepository, never()).deleteById(any());
     }
-
+    
     @Test
-    void findByFilter_ShouldReturnFilteredCars() {
-        CarFilterDto filter = new CarFilterDto();
-        Specification<Car> spec = CarSpecifications.nameContains(filter.getName());
-        when(carRepository.findAll(any(Specification.class))).thenReturn(List.of(car));
-
+    void shouldReturnFilteredCars_whenFindByFilterIsCalled() {
+        // Given
+        Car testCar = createTestCar(testCarId, TEST_CAR_NAME);
+        CarFilterDto filter = createCarFilter(TEST_CAR_NAME, null, null, null);
+        when(carRepository.findAll(any(Specification.class))).thenReturn(List.of(testCar));
+        
+        // When
         List<Car> cars = garageService.findByFilter(filter);
-
+        
+        // Then
         assertEquals(1, cars.size());
-        verify(carRepository, times(1)).findAll(any(Specification.class));
+        verify(carRepository).findAll(any(Specification.class));
+    }
+    
+    /**
+     * Creates a test car with the specified id and name
+     */
+    private Car createTestCar(UUID id, String name) {
+        Car car = new Car();
+        car.setId(id);
+        car.setName(name);
+        return car;
+    }
+    
+    /**
+     * Creates a car filter with the specified parameters
+     */
+    private CarFilterDto createCarFilter(String name, FuelType type, Integer minCapacity, Integer maxCapacity) {
+        return CarFilterDto.builder()
+                .name(name)
+                .type(type)
+                .minCapacity(minCapacity)
+                .maxCapacity(maxCapacity)
+                .build();
     }
 }

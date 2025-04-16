@@ -7,76 +7,78 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+/**
+ * Tests for the CarValidator class.
+ * This class validates that a Car object adheres to certain rules
+ * regarding its fuel type and engine capacity:
+ * - Cars with certain fuel types (electric, fuel cell, other) must have a zero engine capacity.
+ * - Cars with other fuel types must have an engine capacity greater than zero.
+ */
 class CarValidatorTest {
 
-    /**
-     * Tests for the CarValidator class.
-     * This class validates that a Car object adheres to certain rules
-     * regarding its fuel type and engine capacity:
-     * - Cars with certain fuel types (electric, fuel cell, other) must have a zero engine capacity.
-     * - Cars with other fuel types must have an engine capacity greater than zero.
-     */
+    private static final String ELECTRIC_CAR_NAME = "Electric Car";
+    private static final String DIESEL_CAR_NAME = "Diesel Car";
+    private static final String TEST_CAR_NAME = "Test Car";
 
+    // Fuel type validation tests
+    
     @Test
-    void validate_ShouldThrowException_WhenFuelTypeIsNull() {
-        Car car = Car.builder()
-                .id(UUID.randomUUID())
-                .name("Test Car")
-                .fuelType(null)
-                .build();
-
-        assertThrows(InvalidCarDataException.class, () -> CarValidator.validate(car), "Fuel type is required");
+    void shouldThrowExceptionWhenFuelTypeIsNull() {
+        Car car = buildTestCar(TEST_CAR_NAME, null, 0);
+        
+        assertThrows(InvalidCarDataException.class, 
+                () -> CarValidator.validate(car), 
+                "Fuel type is required");
     }
 
+    // Zero engine capacity fuel type tests
+    
     @Test
-    void validate_ShouldThrowException_WhenEngineCapacityIsNotZero_ForElectricFuelType() {
-        Car car = Car.builder()
-                .id(UUID.randomUUID())
-                .name("Electric Car")
-                .fuelType(FuelType.ELECTRIC)
-                .engineCapacity(100)
-                .build();
-
-        assertThrows(InvalidCarDataException.class, () -> CarValidator.validate(car),
+    void shouldThrowExceptionWhenEngineCapacityNotZeroForElectricCar() {
+        Car car = buildTestCar(ELECTRIC_CAR_NAME, FuelType.ELECTRIC, 100);
+        
+        assertThrows(InvalidCarDataException.class, 
+                () -> CarValidator.validate(car),
                 "Cars with fuel type ELECTRIC must have engine capacity equal to 0");
     }
 
     @Test
-    void validate_ShouldNotThrowException_WhenEngineCapacityIsZero_ForElectricFuelType() {
-        Car car = Car.builder()
-                .id(UUID.randomUUID())
-                .name("Electric Car")
-                .fuelType(FuelType.ELECTRIC)
-                .engineCapacity(0)
-                .build();
-
-        CarValidator.validate(car); // No exception should be thrown
+    void shouldAcceptZeroEngineCapacityForElectricCar() {
+        Car car = buildTestCar(ELECTRIC_CAR_NAME, FuelType.ELECTRIC, 0);
+        
+        assertDoesNotThrow(() -> CarValidator.validate(car));
     }
 
+    // Non-zero engine capacity fuel type tests
+    
     @Test
-    void validate_ShouldThrowException_WhenEngineCapacityIsZero_ForNonElectricFuelType() {
-        Car car = Car.builder()
-                .id(UUID.randomUUID())
-                .name("Diesel Car")
-                .fuelType(FuelType.DIESEL)
-                .engineCapacity(0)
-                .build();
-
-        assertThrows(InvalidCarDataException.class, () -> CarValidator.validate(car),
+    void shouldThrowExceptionWhenEngineCapacityZeroForDieselCar() {
+        Car car = buildTestCar(DIESEL_CAR_NAME, FuelType.DIESEL, 0);
+        
+        assertThrows(InvalidCarDataException.class, 
+                () -> CarValidator.validate(car),
                 "Cars with fuel type DIESEL must have engine capacity greater than 0");
     }
 
     @Test
-    void validate_ShouldNotThrowException_WhenEngineCapacityIsGreaterThanZero_ForNonElectricFuelType() {
-        Car car = Car.builder()
+    void shouldAcceptNonZeroEngineCapacityForDieselCar() {
+        Car car = buildTestCar(DIESEL_CAR_NAME, FuelType.DIESEL, 2000);
+        
+        assertDoesNotThrow(() -> CarValidator.validate(car));
+    }
+    
+    /**
+     * Helper method to build a car for testing
+     */
+    private Car buildTestCar(String name, FuelType fuelType, int engineCapacity) {
+        return Car.builder()
                 .id(UUID.randomUUID())
-                .name("Diesel Car")
-                .fuelType(FuelType.DIESEL)
-                .engineCapacity(2000)
+                .name(name)
+                .fuelType(fuelType)
+                .engineCapacity(engineCapacity)
                 .build();
-
-        CarValidator.validate(car); // No exception should be thrown
     }
 }
