@@ -39,7 +39,6 @@ class GarageControllerTest {
 
     private UUID carId;
     private Car testCar;
-    private CarDto testCarDto;
 
     @BeforeEach
     void setUp() {
@@ -53,8 +52,6 @@ class GarageControllerTest {
                 .fuelType(DEFAULT_FUEL_TYPE)
                 .engineCapacity(DEFAULT_ENGINE_CAPACITY)
                 .build();
-
-        testCarDto = CarMapper.toDto(testCar);
     }
 
     @Test
