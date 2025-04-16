@@ -11,7 +11,6 @@ public interface CarRepository {
     Optional<Car> findById(UUID id);
     Car save(Car car);
     void deleteById(UUID id);
-    List<Car> findByFuelType(FuelType fuelType);
     List<Car> findAll(Specification<Car> spec);
 
 }

@@ -1,6 +1,5 @@
 package ghkg.api;
 
-import ghkg.domain.FuelType;
 import ghkg.dto.CarDto;
 import ghkg.dto.CarFilterDto;
 import ghkg.mapper.CarMapper;
