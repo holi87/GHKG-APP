@@ -49,6 +49,7 @@ public class GarageController {
         return CarMapper.toDto(garageService.addCar(CarMapper.fromCreateDto(dto)));
     }
 
+    @PutMapping("/{id}")
     public CarDto update(@PathVariable UUID id, @RequestBody UpdateCarDto dto) {
         if (!id.equals(dto.id())) {
             throw new InvalidCarDataException("Path ID and payload ID do not match");
