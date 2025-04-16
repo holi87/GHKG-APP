@@ -18,8 +18,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(
         value = "/api/v1/cars",
-        produces = "application/json",
-        consumes = "application/json"
+        produces = "application/json"
 )
 @RequiredArgsConstructor
 public class GarageController {
@@ -27,7 +26,7 @@ public class GarageController {
     private final GarageService garageService;
 
     @GetMapping("/all")
-    public List<CarDto> getAll(@ModelAttribute CarFilterDto filter) {
+    public List<CarDto> getAll() {
         return garageService.getAllCars().stream()
                 .map(CarMapper::toDto)
                 .collect(Collectors.toList());
@@ -44,12 +43,12 @@ public class GarageController {
                 .map(CarMapper::toDto)
                 .collect(Collectors.toList());
     }
-    @PostMapping
+    @PostMapping(consumes = "application/json", produces = "application/json")
     public CarDto add(@RequestBody CreateCarDto dto) {
         return CarMapper.toDto(garageService.addCar(CarMapper.fromCreateDto(dto)));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
     public CarDto update(@PathVariable UUID id, @RequestBody UpdateCarDto dto) {
         if (!id.equals(dto.id())) {
             throw new InvalidCarDataException("Path ID and payload ID do not match");
