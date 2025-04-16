@@ -25,7 +25,7 @@ public class GarageController {
 
     @GetMapping("/all")
     public List<CarDto> getAll(@ModelAttribute CarFilterDto filter) {
-        return garageService.findByFilter(filter).stream()
+        return garageService.getAllCars().stream()
                 .map(CarMapper::toDto)
                 .collect(Collectors.toList());
     }

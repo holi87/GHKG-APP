@@ -44,10 +44,6 @@ public class GarageService {
         carRepository.deleteById(id);
     }
 
-    public List<Car> getCarsByFuelType(FuelType type) {
-        return carRepository.findByFuelType(type);
-    }
-
     public List<Car> findByFilter(CarFilterDto filter) {
         Specification<Car> spec = Specification.where(CarSpecifications.nameContains(filter.getName()))
                 .and(CarSpecifications.fuelTypeIs(filter.getType()))
