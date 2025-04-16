@@ -1,6 +1,7 @@
 package ghkg.application;
 
 import ghkg.api.exception.CarNotFoundException;
+import ghkg.api.exception.InvalidCarDataException;
 import ghkg.domain.Car;
 import ghkg.domain.CarRepository;
 import ghkg.domain.FuelType;
@@ -99,7 +100,7 @@ class GarageServiceTest {
         invalidCar.setEngineCapacity(100); // Invalid for ELECTRIC cars
         
         // When/Then
-        assertThrows(IllegalArgumentException.class, () -> garageService.addCar(invalidCar));
+        assertThrows(InvalidCarDataException.class, () -> garageService.addCar(invalidCar));
         verify(carRepository, never()).save(any());
     }
     
@@ -147,6 +148,7 @@ class GarageServiceTest {
         Car car = new Car();
         car.setId(id);
         car.setName(name);
+        car.setFuelType(FuelType.FUEL_CELL);
         return car;
     }
     
