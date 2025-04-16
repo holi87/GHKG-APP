@@ -5,13 +5,10 @@ src/main/java/ghkg/
 ├── ApiApp.java                            
 ├── config                                
 │   └── OpenApiConfig.java                 
-├── controller                             
-│   ├── v1                                 
-│   │   ├── GarageController.java          
-│   │   ├── TripController.java            
-│   │   └── ...                            
-│   └── v2                                 
-│       └── 
+├── controller                                                   
+│   ├── GarageController.java          
+│   ├── TripController.java            
+│   └── ...                                                        
 ├── model                                  
 │   ├── Car.java
 │   └── Trip.java
