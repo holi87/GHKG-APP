@@ -1,10 +1,9 @@
 package ghkg.api;
 
-import ghkg.domain.Car;
 import ghkg.domain.FuelType;
 import ghkg.dto.CarDto;
 import ghkg.mapper.CarMapper;
-import ghkg.service.GarageService;
+import ghkg.application.GarageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
