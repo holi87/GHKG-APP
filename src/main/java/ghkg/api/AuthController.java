@@ -6,9 +6,12 @@ import ghkg.dto.auth.LoginRequest;
 import ghkg.dto.auth.LoginResponse;
 import ghkg.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -24,6 +27,7 @@ public class AuthController {
                 .orElseGet(() -> ResponseEntity.status(401).build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/users")
     public ResponseEntity<Void> createUser(@RequestBody CreateUserRequest request) {
         userService.createUser(request.username(), request.password(), request.roles());
