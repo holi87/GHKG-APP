@@ -1,11 +1,12 @@
 package ghkg.api;
 
 import ghkg.application.UserService;
-import ghkg.dto.MessageResponse;
 import ghkg.dto.auth.CreateUserRequest;
+import ghkg.dto.auth.CreateUserResponse;
 import ghkg.dto.auth.LoginRequest;
 import ghkg.dto.auth.LoginResponse;
 import ghkg.security.JwtService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -34,8 +35,11 @@ public class AuthController {
 
     @PostMapping("/admin/users")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MessageResponse> createUser(@RequestBody CreateUserRequest request) {
-        MessageResponse response = userService.createUser(request.username(), request.password(), request.roles());
+    public ResponseEntity<CreateUserResponse> createUser(@RequestBody @Valid CreateUserRequest request) {
+        CreateUserResponse response = userService.createUser(
+                request.username(), request.password(), request.roles()
+        );
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
 }

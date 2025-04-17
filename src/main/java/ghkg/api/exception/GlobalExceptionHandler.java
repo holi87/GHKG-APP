@@ -2,6 +2,7 @@ package ghkg.api.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,24 +16,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CarNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleCarNotFound(CarNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "error", "Car not found",
-                        "message", ex.getMessage()
-                )
-        );
+        return buildResponse(HttpStatus.NOT_FOUND, "Car not found", ex.getMessage());
     }
 
     @ExceptionHandler(InvalidCarDataException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidData(InvalidCarDataException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "error", "Invalid car data",
-                        "message", ex.getMessage()
-                )
-        );
+        return buildResponse(HttpStatus.BAD_REQUEST, "Invalid car data", ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -41,11 +30,30 @@ public class GlobalExceptionHandler {
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+        return buildResponse(HttpStatus.BAD_REQUEST, "Validation failed", errorMsg);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Bad request", ex.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
+        return buildResponse(HttpStatus.FORBIDDEN, "Access denied", ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleAll(Exception ex) {
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", ex.getMessage());
+    }
+
+    private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String error, String message) {
+        return ResponseEntity.status(status).body(
                 Map.of(
                         "timestamp", LocalDateTime.now(),
-                        "error", "Validation failed",
-                        "message", errorMsg
+                        "error", error,
+                        "message", message
                 )
         );
     }
