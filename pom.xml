@@ -14,6 +14,7 @@
         <lombok.version>1.18.38</lombok.version>
         <springdoc.openapi.starter.version>2.8.6</springdoc.openapi.starter.version>
         <mockito.version>5.9.0</mockito.version>
+        <jsonwebtoken.version>0.11.5</jsonwebtoken.version>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -78,6 +79,26 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jsonwebtoken.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jsonwebtoken.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jsonwebtoken.version}</version>
         </dependency>
     </dependencies>
 

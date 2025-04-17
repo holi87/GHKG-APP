@@ -1,8 +1,11 @@
-package ghkg.dto;
+package ghkg.dto.car;
 
 import ghkg.domain.FuelType;
 
-public record CreateCarDto(
+import java.util.UUID;
+
+public record UpdateCarDto(
+        UUID id,
         String name,
         FuelType fuelType,
         int engineCapacity

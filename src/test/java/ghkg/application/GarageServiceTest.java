@@ -5,7 +5,7 @@ import ghkg.api.exception.InvalidCarDataException;
 import ghkg.domain.Car;
 import ghkg.domain.CarRepository;
 import ghkg.domain.FuelType;
-import ghkg.dto.CarFilterDto;
+import ghkg.dto.car.CarFilterDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
