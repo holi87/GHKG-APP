@@ -1,0 +1,2 @@
+INSERT INTO users (id, username, password) VALUES ('00000000-0000-0000-0000-000000000001', 'admin', '$2a$10$CGVkba.HRbDCCXERtTvBFOb10NvbOiIQY2VHk9nwtd/fiCKraJ7EO');
+INSERT INTO user_roles (user_id, role) VALUES ('00000000-0000-0000-0000-000000000001', 'ADMIN');

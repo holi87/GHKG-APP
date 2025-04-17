@@ -1,7 +1,7 @@
 package ghkg.mapper;
 
 import ghkg.domain.Car;
-import ghkg.dto.CreateCarDto;
+import ghkg.dto.car.CreateCarDto;
 import ghkg.domain.FuelType;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

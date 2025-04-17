@@ -1,9 +1,9 @@
 package ghkg.mapper;
 
 import ghkg.domain.Car;
-import ghkg.dto.CarDto;
-import ghkg.dto.CreateCarDto;
-import ghkg.dto.UpdateCarDto;
+import ghkg.dto.car.CarDto;
+import ghkg.dto.car.CreateCarDto;
+import ghkg.dto.car.UpdateCarDto;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

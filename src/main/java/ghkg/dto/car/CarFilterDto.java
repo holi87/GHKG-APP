@@ -1,4 +1,4 @@
-package ghkg.dto;
+package ghkg.dto.car;
 
 import ghkg.domain.FuelType;
 import lombok.AllArgsConstructor;

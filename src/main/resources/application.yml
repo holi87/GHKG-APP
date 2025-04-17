@@ -3,14 +3,21 @@ server:
 
 spring:
   datasource:
-    url: jdbc:h2:mem:garage-db
+    url: jdbc:h2:mem:ghkg-db
     driver-class-name: org.h2.Driver
     username: sa
     password:
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+
   h2:
     console:
       enabled: true

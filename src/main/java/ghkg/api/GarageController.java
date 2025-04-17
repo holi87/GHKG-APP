@@ -2,10 +2,10 @@ package ghkg.api;
 
 import ghkg.api.exception.InvalidCarDataException;
 import ghkg.domain.Car;
-import ghkg.dto.CarDto;
-import ghkg.dto.CarFilterDto;
-import ghkg.dto.CreateCarDto;
-import ghkg.dto.UpdateCarDto;
+import ghkg.dto.car.CarDto;
+import ghkg.dto.car.CarFilterDto;
+import ghkg.dto.car.CreateCarDto;
+import ghkg.dto.car.UpdateCarDto;
 import ghkg.mapper.CarMapper;
 import ghkg.application.GarageService;
 import lombok.RequiredArgsConstructor;

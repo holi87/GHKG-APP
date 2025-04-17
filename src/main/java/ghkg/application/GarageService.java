@@ -4,7 +4,7 @@ import ghkg.api.exception.CarNotFoundException;
 import ghkg.application.validation.CarValidator;
 import ghkg.domain.Car;
 import ghkg.domain.CarRepository;
-import ghkg.dto.CarFilterDto;
+import ghkg.dto.car.CarFilterDto;
 import ghkg.infrastructure.spec.CarSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
