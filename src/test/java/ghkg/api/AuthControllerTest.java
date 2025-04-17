@@ -1,6 +1,7 @@
 package ghkg.api;
 
 import ghkg.application.UserService;
+import ghkg.domain.User;
 import ghkg.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ class AuthControllerTest {
         String password = "securepassword";
         String token = "jwt-token";
 
-        Mockito.when(userService.validateUser(username, password)).thenReturn(Optional.of(new Object()));
+        Mockito.when(userService.validateUser(username, password)).thenReturn(Optional.of(User.builder().username(username).build()));
         Mockito.when(jwtService.generateToken(username)).thenReturn(token);
 
         mockMvc.perform(post("/api/v1/auth/login")

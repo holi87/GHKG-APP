@@ -5,9 +5,9 @@ import ghkg.domain.User;
 import ghkg.dto.auth.CreateUserResponse;
 import ghkg.infrastructure.repository.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -23,10 +23,10 @@ class UserServiceTest {
     @Autowired
     private UserService userService;
 
-    @MockBean
+    @Mock
     private UserRepository userRepository;
 
-    @MockBean
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Test
