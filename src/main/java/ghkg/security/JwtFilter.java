@@ -19,7 +19,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
+    private final UserRoleService userRoleService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -33,7 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
             String jwt = authHeader.substring(7);
             if (jwtService.isTokenValid(jwt)) {
                 String username = jwtService.extractUsername(jwt);
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = userRoleService.loadUserByUsername(username);
 
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
