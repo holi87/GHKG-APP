@@ -2,6 +2,7 @@ package ghkg.application;
 
 import ghkg.domain.Role;
 import ghkg.domain.User;
+import ghkg.dto.MessageResponse;
 import ghkg.infrastructure.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User createUser(String username, String rawPassword, Set<Role> roles) {
+    public MessageResponse createUser(String username, String rawPassword, Set<Role> roles) {
         if (userRepository.findByUsername(username).isPresent()) {
             throw new IllegalArgumentException("User already exists");
         }
@@ -29,8 +30,16 @@ public class UserService {
                 .roles(roles)
                 .build();
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        String message = "Created user: %s with roles: %s".formatted(
+                username,
+                roles.stream().map(Enum::name).toList()
+        );
+
+        return new MessageResponse(message);
     }
+
 
     public Optional<User> validateUser(String username, String rawPassword) {
         return userRepository.findByUsername(username)

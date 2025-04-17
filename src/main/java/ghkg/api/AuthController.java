@@ -1,15 +1,20 @@
 package ghkg.api;
 
 import ghkg.application.UserService;
+import ghkg.dto.MessageResponse;
 import ghkg.dto.auth.CreateUserRequest;
 import ghkg.dto.auth.LoginRequest;
 import ghkg.dto.auth.LoginResponse;
 import ghkg.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -24,13 +29,13 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         return userService.validateUser(request.username(), request.password())
                 .map(user -> ResponseEntity.ok(new LoginResponse(jwtService.generateToken(user.getUsername()))))
-                .orElseGet(() -> ResponseEntity.status(401).build());
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/users")
-    public ResponseEntity<Void> createUser(@RequestBody CreateUserRequest request) {
-        userService.createUser(request.username(), request.password(), request.roles());
-        return ResponseEntity.ok().build();
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> createUser(@RequestBody CreateUserRequest request) {
+        MessageResponse response = userService.createUser(request.username(), request.password(), request.roles());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
