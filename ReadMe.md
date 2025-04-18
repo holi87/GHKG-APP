@@ -1,62 +1,34 @@
-# Class Structure
+# 🚗 GHKG-API — running on Docker
 
-## Domain Layer
+## ✅ Requirements
 
-### Car (Entity)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) installed on your machine
 
-- Properties:
-    - id: UUID
-    - name: String
-    - fuelType: FuelType (Enum)
-    - engineCapacity: Integer
+---
 
-### CarRepository (Interface)
+## 🐳 Step 1: download image
 
-- Methods:
-    - findAll(): List<Car>
-    - findById(UUID): Optional<Car>
-    - save(Car): Car
-    - deleteById(UUID): void
-    - findAll(Specification<Car>): List<Car>
-    - existsById(UUID): boolean
+```bash
+docker pull gholak87/ghkg-api:latest
+```
 
-### FuelType (Enum)
+## 🐳 Step 2: run container
 
-- Values:
-    - ELECTRIC
-    - FUEL_CELL
-    - GASOLINE
-    - DIESEL
+```bash
+docker run -p 8081:8080 <twoj_user>/ghkg-api:latest
+```
 
-## Service Layer
+## 🐳 Step 3: run swagger
 
-### GarageService
+```bash 
+http://localhost:8081/swagger-ui/index.html
+```
 
-- Dependencies:
-    - CarRepository
-- Methods:
-    - getAllCars(): List<Car>
-    - getCarById(UUID): Car
-    - addCar(Car): Car
-    - deleteCar(UUID): void
-    - findByFilter(CarFilterDto): List<Car>
+## 🐳 Step 4: basic admin credentials
 
-## Exception Handling
+```bash
+username: admin
+password: Tesla.123
+```
 
-### CarNotFoundException
-
-- Thrown when requested car is not found
-
-### InvalidCarDataException
-
-- Thrown when car data validation fails
-
-## DTOs
-
-### CarFilterDto
-
-- Properties:
-    - name: String
-    - type: FuelType
-    - minCapacity: Integer
-    - maxCapacity: Integer
+## 🐳 Step 5: happy testing!
