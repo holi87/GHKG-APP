@@ -2,8 +2,8 @@ package ghkg.api;
 
 import ghkg.api.exception.InvalidCarDataException;
 import ghkg.application.GarageService;
-import ghkg.domain.Car;
-import ghkg.domain.FuelType;
+import ghkg.domain.car.Car;
+import ghkg.domain.car.FuelType;
 import ghkg.dto.PageResponse;
 import ghkg.dto.car.CarDto;
 import ghkg.dto.car.CarFilterDto;

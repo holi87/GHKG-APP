@@ -2,8 +2,8 @@ package ghkg.application;
 
 import ghkg.api.exception.CarNotFoundException;
 import ghkg.application.validation.CarValidator;
-import ghkg.domain.Car;
-import ghkg.domain.CarRepository;
+import ghkg.domain.car.Car;
+import ghkg.domain.car.CarRepository;
 import ghkg.dto.car.CarDto;
 import ghkg.dto.car.CarFilterDto;
 import ghkg.infrastructure.spec.CarSpecifications;

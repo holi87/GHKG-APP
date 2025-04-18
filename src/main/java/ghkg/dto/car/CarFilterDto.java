@@ -1,6 +1,6 @@
 package ghkg.dto.car;
 
-import ghkg.domain.FuelType;
+import ghkg.domain.car.FuelType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

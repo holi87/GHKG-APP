@@ -1,7 +1,7 @@
 package ghkg.infrastructure.repository;
 
-import ghkg.domain.Car;
-import ghkg.domain.CarRepository;
+import ghkg.domain.car.Car;
+import ghkg.domain.car.CarRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;

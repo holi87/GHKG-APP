@@ -1,8 +1,8 @@
 package ghkg.application.validation;
 
 import ghkg.api.exception.InvalidCarDataException;
-import ghkg.domain.Car;
-import ghkg.domain.FuelType;
+import ghkg.domain.car.Car;
+import ghkg.domain.car.FuelType;
 
 import java.util.Set;
 

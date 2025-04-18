@@ -1,4 +1,4 @@
-package ghkg.domain;
+package ghkg.domain.car;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
