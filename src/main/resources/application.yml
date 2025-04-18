@@ -35,5 +35,5 @@ management:
 info:
   app:
     name: GHKG API
-    version: 1.0.3
+    version: ${project.version}
     description: API for testing purpose - GHolak and KGomulski
