@@ -4,17 +4,23 @@ import ghkg.api.exception.InvalidCarDataException;
 import ghkg.application.GarageService;
 import ghkg.config.ApiPaths;
 import ghkg.domain.Car;
+import ghkg.dto.PageResponse;
 import ghkg.dto.car.CarDto;
 import ghkg.dto.car.CarFilterDto;
 import ghkg.dto.car.CreateCarDto;
 import ghkg.dto.car.UpdateCarDto;
 import ghkg.mapper.CarMapper;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(
@@ -22,15 +28,21 @@ import java.util.stream.Collectors;
         produces = "application/json"
 )
 @RequiredArgsConstructor
-public class GarageController {
+public class GarageController extends BaseController {
 
     private final GarageService garageService;
 
-    @GetMapping("/all")
-    public List<CarDto> getAll() {
-        return garageService.getAllCars().stream()
-                .map(CarMapper::toDto)
-                .collect(Collectors.toList());
+    @GetMapping
+    public ResponseEntity<PageResponse<CarDto>> getCars(
+            @Parameter(description = "Car filters")
+            @ParameterObject CarFilterDto filter,
+
+            @Parameter(description = "Pagination and sorting parameters e.g. `?page=0&size=10&sort=brand,desc`")
+            @PageableDefault(sort = "name", direction = Sort.Direction.ASC)
+            @ParameterObject Pageable pageable
+    ) {
+        Page<CarDto> page = garageService.getCars(filter, pageable);
+        return ResponseEntity.ok(toPageResponse(page));
     }
 
     @GetMapping("/{id}")
@@ -38,12 +50,7 @@ public class GarageController {
         return CarMapper.toDto(garageService.getCarById(id));
     }
 
-    @GetMapping
-    public List<CarDto> getFilteredCars(@ModelAttribute CarFilterDto filter) {
-        return garageService.findByFilter(filter).stream()
-                .map(CarMapper::toDto)
-                .collect(Collectors.toList());
-    }
+
     @PostMapping(consumes = "application/json", produces = "application/json")
     public CarDto add(@RequestBody CreateCarDto dto) {
         return CarMapper.toDto(garageService.addCar(CarMapper.fromCreateDto(dto)));

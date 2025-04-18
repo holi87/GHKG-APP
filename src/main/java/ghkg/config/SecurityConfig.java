@@ -38,7 +38,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/actuator/health",
                                 "/actuator/info",
-                                ApiPaths.VERSION
+                                ApiPaths.VERSION,
+                                ApiPaths.CARS + "/**"
                         ).permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, ApiPaths.ADMIN + "/users").hasRole("ADMIN")

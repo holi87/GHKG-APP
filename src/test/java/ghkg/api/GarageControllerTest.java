@@ -14,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,20 +51,6 @@ class GarageControllerTest {
                 .fuelType(DEFAULT_FUEL_TYPE)
                 .engineCapacity(DEFAULT_ENGINE_CAPACITY)
                 .build();
-    }
-
-    @Test
-    void shouldReturnAllCarsWhenGetAllIsCalled() {
-        // Arrange
-        when(garageService.getAllCars()).thenReturn(List.of(testCar));
-        
-        // Act
-        List<CarDto> cars = garageController.getAll();
-        
-        // Assert
-        assertEquals(1, cars.size());
-        assertEquals(TEST_CAR_NAME, cars.get(0).name());
-        verify(garageService).getAllCars();
     }
 
     @Test
@@ -109,16 +94,17 @@ class GarageControllerTest {
         verify(garageService).deleteCar(carId);
     }
 
+
     @Test
     void shouldUpdateAndReturnCarWhenUpdateIsCalledWithValidData() {
         // Arrange
         UpdateCarDto updateCarDto = new UpdateCarDto(carId, UPDATED_CAR_NAME, UPDATED_FUEL_TYPE, UPDATED_ENGINE_CAPACITY);
         Car updatedCar = CarMapper.fromUpdateDto(updateCarDto);
         when(garageService.updateCar(carId, updatedCar)).thenReturn(updatedCar);
-        
+
         // Act
         CarDto updatedCarDto = garageController.update(carId, updateCarDto);
-        
+
         // Assert
         assertNotNull(updatedCarDto);
         assertEquals(UPDATED_CAR_NAME, updatedCarDto.name());
@@ -132,13 +118,13 @@ class GarageControllerTest {
         // Arrange
         UUID differentId = UUID.randomUUID();
         UpdateCarDto updateCarDto = new UpdateCarDto(differentId, UPDATED_CAR_NAME, UPDATED_FUEL_TYPE, UPDATED_ENGINE_CAPACITY);
-        
+
         // Act & Assert
         InvalidCarDataException exception = assertThrows(
-            InvalidCarDataException.class, 
+                InvalidCarDataException.class,
             () -> garageController.update(carId, updateCarDto)
         );
-        
+
         assertEquals(ID_MISMATCH_ERROR, exception.getMessage());
         verify(garageService, never()).updateCar(any(), any());
     }

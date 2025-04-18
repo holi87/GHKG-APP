@@ -11,13 +11,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class GarageServiceTest {
@@ -28,27 +30,13 @@ class GarageServiceTest {
     private GarageService garageService;
     
     private UUID testCarId;
+    private Pageable testPageable;
     private final String TEST_CAR_NAME = "Test Car";
     
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         testCarId = UUID.randomUUID();
-    }
-    
-    @Test
-    void shouldReturnAllCars_whenGetAllCarsIsCalled() {
-        // Given
-        Car testCar = createTestCar(testCarId, TEST_CAR_NAME);
-        when(carRepository.findAll()).thenReturn(List.of(testCar));
-        
-        // When
-        List<Car> cars = garageService.getAllCars();
-        
-        // Then
-        assertEquals(1, cars.size());
-        assertEquals(TEST_CAR_NAME, cars.get(0).getName());
-        verify(carRepository).findAll();
     }
     
     @Test
@@ -64,13 +52,14 @@ class GarageServiceTest {
         assertNotNull(foundCar);
         assertEquals(TEST_CAR_NAME, foundCar.getName());
         verify(carRepository).findById(testCarId);
+        testPageable = PageRequest.of(0, 5, Sort.by("name"));
     }
     
     @Test
     void shouldThrowCarNotFoundException_whenCarDoesNotExistWithGivenId() {
         // Given
         when(carRepository.findById(testCarId)).thenReturn(Optional.empty());
-        
+
         // When/Then
         assertThrows(CarNotFoundException.class, () -> garageService.getCarById(testCarId));
         verify(carRepository).findById(testCarId);
@@ -124,22 +113,7 @@ class GarageServiceTest {
         assertThrows(CarNotFoundException.class, () -> garageService.deleteCar(testCarId));
         verify(carRepository, never()).deleteById(any());
     }
-    
-    @Test
-    void shouldReturnFilteredCars_whenFindByFilterIsCalled() {
-        // Given
-        Car testCar = createTestCar(testCarId, TEST_CAR_NAME);
-        CarFilterDto filter = createCarFilter(TEST_CAR_NAME, null, null, null);
-        when(carRepository.findAll(any(Specification.class))).thenReturn(List.of(testCar));
-        
-        // When
-        List<Car> cars = garageService.findByFilter(filter);
-        
-        // Then
-        assertEquals(1, cars.size());
-        verify(carRepository).findAll(any(Specification.class));
-    }
-    
+
     /**
      * Creates a test car with the specified id and name
      */
