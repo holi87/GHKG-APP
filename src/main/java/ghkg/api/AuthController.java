@@ -2,10 +2,7 @@ package ghkg.api;
 
 import ghkg.application.UserService;
 import ghkg.config.ApiPaths;
-import ghkg.dto.auth.CreateUserRequest;
-import ghkg.dto.auth.CreateUserResponse;
-import ghkg.dto.auth.LoginRequest;
-import ghkg.dto.auth.LoginResponse;
+import ghkg.dto.auth.*;
 import ghkg.security.JwtService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -34,7 +30,7 @@ public class AuthController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
-    @PostMapping(ApiPaths.ADMIN + "/users")
+    @PostMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CreateUserResponse> createUser(@RequestBody @Valid CreateUserRequest request) {
         CreateUserResponse response = userService.createUser(
@@ -43,4 +39,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/users")
+    public List<UserSummaryResponse> getAllUsers() {
+        return userService.getAllUsers();
+    }
 }

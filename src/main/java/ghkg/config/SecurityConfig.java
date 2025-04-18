@@ -6,7 +6,6 @@ import ghkg.security.UserRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,29 +28,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                ApiPaths.AUTH + "/login",
-                                "/h2-console/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/actuator/health",
-                                "/actuator/info",
-                                ApiPaths.VERSION,
-                                ApiPaths.CARS + "/**"
-                        ).permitAll()
-                        .requestMatchers("/actuator/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, ApiPaths.ADMIN + "/users").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, ApiPaths.TRIPS + "/**").hasAnyRole("USER", "WORKER", "ADMIN")
-                        .requestMatchers(ApiPaths.TRIPS + "/**").hasAnyRole("WORKER", "ADMIN")
-                        .anyRequest().authenticated()
-                )
-
+                .authorizeHttpRequests(AccessRules::configure)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .httpBasic(Customizer.withDefaults()) // Enable basic authentication
+                .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .headers(headers -> headers.frameOptions().disable()) // Allow H2 console to be displayed in a frame
+                .headers(headers -> headers.frameOptions().disable())
                 .build();
     }
 
