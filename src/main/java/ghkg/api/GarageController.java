@@ -1,13 +1,14 @@
 package ghkg.api;
 
 import ghkg.api.exception.InvalidCarDataException;
+import ghkg.application.GarageService;
+import ghkg.config.ApiPaths;
 import ghkg.domain.Car;
 import ghkg.dto.car.CarDto;
 import ghkg.dto.car.CarFilterDto;
 import ghkg.dto.car.CreateCarDto;
 import ghkg.dto.car.UpdateCarDto;
 import ghkg.mapper.CarMapper;
-import ghkg.application.GarageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(
-        value = "/api/v1/cars",
+        value = ApiPaths.CARS,
         produces = "application/json"
 )
 @RequiredArgsConstructor
