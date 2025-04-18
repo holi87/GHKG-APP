@@ -4,7 +4,9 @@ import ghkg.api.exception.InvalidCarDataException;
 import ghkg.application.GarageService;
 import ghkg.domain.Car;
 import ghkg.domain.FuelType;
+import ghkg.dto.PageResponse;
 import ghkg.dto.car.CarDto;
+import ghkg.dto.car.CarFilterDto;
 import ghkg.dto.car.CreateCarDto;
 import ghkg.dto.car.UpdateCarDto;
 import ghkg.mapper.CarMapper;
@@ -13,7 +15,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -127,5 +132,31 @@ class GarageControllerTest {
 
         assertEquals(ID_MISMATCH_ERROR, exception.getMessage());
         verify(garageService, never()).updateCar(any(), any());
+    }
+
+    @Test
+    void shouldReturnPagedCarsWhenGetCarsIsCalled() {
+        // Arrange
+        CarFilterDto filter = CarFilterDto.builder().build();
+        Pageable pageable = mock(Pageable.class);
+        Page<CarDto> mockPage = mock(Page.class);
+
+        when(garageService.getCars(filter, pageable)).thenReturn(mockPage);
+        when(mockPage.getContent()).thenReturn(List.of(CarMapper.toDto(testCar)));
+        when(mockPage.getTotalElements()).thenReturn(1L);
+        when(mockPage.getTotalPages()).thenReturn(1);
+        when(mockPage.getNumber()).thenReturn(0);
+        when(mockPage.getSize()).thenReturn(1);
+
+        // Act
+        PageResponse<CarDto> response = garageController.getCars(filter, pageable).getBody();
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(1, response.content().size());
+        assertEquals(TEST_CAR_NAME, response.content().get(0).name());
+        assertEquals(1L, response.totalElements());
+        assertEquals(1, response.totalPages());
+        verify(garageService).getCars(filter, pageable);
     }
 }
