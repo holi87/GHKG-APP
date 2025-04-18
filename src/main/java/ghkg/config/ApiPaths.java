@@ -6,4 +6,5 @@ public class ApiPaths {
     public static final String ADMIN = ROOT + "/admin";
     public static final String TRIPS = ROOT + "/trips";
     public static final String CARS = ROOT + "/cars";
+    public static final String VERSION = "/version";
 }
