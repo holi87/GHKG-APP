@@ -13,7 +13,10 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     @Value("${build.version:unknown}")
-    private String appVersion;
+    private String buildVersion;
+
+    @Value("${git.commit.id.abbrev:unknown}")
+    private String gitCommitId;
 
     @Bean
     public OpenAPI customOpenAPI() {
@@ -21,7 +24,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("GH & KG API")
                         .description("API for testers")
-                        .version(appVersion))
+                        .version(buildVersion + " (" + gitCommitId + ")"))
                 .addSecurityItem(new SecurityRequirement().addList("basicAuth"))
                 .components(new Components().addSecuritySchemes("basicAuth",
                         new SecurityScheme()

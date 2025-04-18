@@ -29,6 +29,8 @@ management:
       exposure:
         include: health, info, metrics, env, beans, mappings, httptrace
   info:
+    git:
+      mode: full
     build:
       enabled: true
     env:
