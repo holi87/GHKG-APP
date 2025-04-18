@@ -1,16 +1,17 @@
-package ghkg.domain;
+package ghkg.domain.car;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface CarRepository {
-    List<Car> findAll();
     Optional<Car> findById(UUID id);
     Car save(Car car);
     void deleteById(UUID id);
-    List<Car> findAll(Specification<Car> spec);
+
+    Page<Car> findAll(Specification<Car> spec, Pageable pageable);
     boolean existsById(UUID id);
 }

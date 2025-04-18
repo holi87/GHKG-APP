@@ -1,7 +1,7 @@
 package ghkg.application;
 
-import ghkg.domain.Role;
-import ghkg.domain.User;
+import ghkg.domain.auth.Role;
+import ghkg.domain.auth.User;
 import ghkg.dto.auth.CreateUserResponse;
 import ghkg.infrastructure.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

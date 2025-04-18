@@ -1,6 +1,6 @@
 package ghkg.dto.auth;
 
-import ghkg.domain.Role;
+import ghkg.domain.auth.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;

@@ -2,16 +2,19 @@ package ghkg.application;
 
 import ghkg.api.exception.CarNotFoundException;
 import ghkg.application.validation.CarValidator;
-import ghkg.domain.Car;
-import ghkg.domain.CarRepository;
+import ghkg.domain.car.Car;
+import ghkg.domain.car.CarRepository;
+import ghkg.dto.car.CarDto;
 import ghkg.dto.car.CarFilterDto;
 import ghkg.infrastructure.spec.CarSpecifications;
+import ghkg.mapper.CarMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -21,8 +24,13 @@ public class GarageService {
 
     private final CarRepository carRepository;
 
-    public List<Car> getAllCars() {
-        return carRepository.findAll();
+    public Page<CarDto> getCars(CarFilterDto filter, Pageable pageable) {
+        Specification<Car> spec = Specification.where(CarSpecifications.nameContains(filter.getName()))
+                .and(CarSpecifications.fuelTypeIs(filter.getType()))
+                .and(CarSpecifications.minCapacity(filter.getMinCapacity()))
+                .and(CarSpecifications.maxCapacity(filter.getMaxCapacity()));
+
+        return carRepository.findAll(spec, pageable).map(CarMapper::toDto);
     }
 
     public Car getCarById(UUID id) {
@@ -48,12 +56,4 @@ public class GarageService {
         carRepository.deleteById(id);
     }
 
-    public List<Car> findByFilter(CarFilterDto filter) {
-        Specification<Car> spec = Specification.where(CarSpecifications.nameContains(filter.getName()))
-                .and(CarSpecifications.fuelTypeIs(filter.getType()))
-                .and(CarSpecifications.minCapacity(filter.getMinCapacity()))
-                .and(CarSpecifications.maxCapacity(filter.getMaxCapacity()));
-
-        return carRepository.findAll(spec);
-    }
 }

@@ -1,6 +1,6 @@
 package ghkg.mapper;
 
-import ghkg.domain.Car;
+import ghkg.domain.car.Car;
 import ghkg.dto.car.CarDto;
 import ghkg.dto.car.CreateCarDto;
 import ghkg.dto.car.UpdateCarDto;

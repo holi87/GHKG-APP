@@ -1,10 +1,12 @@
 package ghkg.mapper;
 
-import ghkg.domain.Car;
+import ghkg.domain.car.Car;
+import ghkg.domain.car.FuelType;
 import ghkg.dto.car.CreateCarDto;
-import ghkg.domain.FuelType;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class CarMapperTest {
     /**

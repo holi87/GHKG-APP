@@ -2,15 +2,16 @@ package ghkg.application;
 
 import ghkg.api.exception.CarNotFoundException;
 import ghkg.api.exception.InvalidCarDataException;
-import ghkg.domain.Car;
-import ghkg.domain.CarRepository;
-import ghkg.domain.FuelType;
+import ghkg.domain.car.Car;
+import ghkg.domain.car.CarRepository;
+import ghkg.domain.car.FuelType;
 import ghkg.dto.car.CarFilterDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class GarageServiceTest {
@@ -37,24 +39,9 @@ class GarageServiceTest {
     }
     
     @Test
-    void shouldReturnAllCars_whenGetAllCarsIsCalled() {
-        // Given
-        Car testCar = createTestCar(testCarId, TEST_CAR_NAME);
-        when(carRepository.findAll()).thenReturn(List.of(testCar));
-        
-        // When
-        List<Car> cars = garageService.getAllCars();
-        
-        // Then
-        assertEquals(1, cars.size());
-        assertEquals(TEST_CAR_NAME, cars.get(0).getName());
-        verify(carRepository).findAll();
-    }
-    
-    @Test
     void shouldReturnCar_whenCarExistsWithGivenId() {
         // Given
-        Car testCar = createTestCar(testCarId, TEST_CAR_NAME);
+        Car testCar = createTestCar(testCarId);
         when(carRepository.findById(testCarId)).thenReturn(Optional.of(testCar));
         
         // When
@@ -64,13 +51,14 @@ class GarageServiceTest {
         assertNotNull(foundCar);
         assertEquals(TEST_CAR_NAME, foundCar.getName());
         verify(carRepository).findById(testCarId);
+        Pageable testPageable = PageRequest.of(0, 5, Sort.by("name"));
     }
     
     @Test
     void shouldThrowCarNotFoundException_whenCarDoesNotExistWithGivenId() {
         // Given
         when(carRepository.findById(testCarId)).thenReturn(Optional.empty());
-        
+
         // When/Then
         assertThrows(CarNotFoundException.class, () -> garageService.getCarById(testCarId));
         verify(carRepository).findById(testCarId);
@@ -79,7 +67,7 @@ class GarageServiceTest {
     @Test
     void shouldSaveAndReturnCar_whenAddCarIsCalledWithValidCar() {
         // Given
-        Car testCar = createTestCar(testCarId, TEST_CAR_NAME);
+        Car testCar = createTestCar(testCarId);
         when(carRepository.save(testCar)).thenReturn(testCar);
         
         // When
@@ -94,7 +82,7 @@ class GarageServiceTest {
     @Test
     void shouldThrowIllegalArgumentException_whenAddCarIsCalledWithInvalidCar() {
         // Given
-        Car invalidCar = createTestCar(testCarId, TEST_CAR_NAME);
+        Car invalidCar = createTestCar(testCarId);
         invalidCar.setFuelType(FuelType.ELECTRIC);
         invalidCar.setEngineCapacity(100); // Invalid for ELECTRIC cars
         
@@ -124,30 +112,28 @@ class GarageServiceTest {
         assertThrows(CarNotFoundException.class, () -> garageService.deleteCar(testCarId));
         verify(carRepository, never()).deleteById(any());
     }
-    
-    @Test
-    void shouldReturnFilteredCars_whenFindByFilterIsCalled() {
-        // Given
-        Car testCar = createTestCar(testCarId, TEST_CAR_NAME);
-        CarFilterDto filter = createCarFilter(TEST_CAR_NAME, null, null, null);
-        when(carRepository.findAll(any(Specification.class))).thenReturn(List.of(testCar));
-        
-        // When
-        List<Car> cars = garageService.findByFilter(filter);
-        
-        // Then
-        assertEquals(1, cars.size());
-        verify(carRepository).findAll(any(Specification.class));
-    }
-    
+
     /**
      * Creates a test car with the specified id and name
      */
-    private Car createTestCar(UUID id, String name) {
+    private Car createTestCar(UUID id) {
         Car car = new Car();
         car.setId(id);
-        car.setName(name);
+        car.setName("Test Car");
         car.setFuelType(FuelType.FUEL_CELL);
+        car.setEngineCapacity(0);
+        return car;
+    }
+
+    /**
+     * Creates a car for tests with full details
+     */
+    private Car createDetailedTestCar(String name, FuelType fuelType, int engineCapacity) {
+        Car car = new Car();
+        car.setId(UUID.randomUUID());
+        car.setName(name);
+        car.setFuelType(fuelType);
+        car.setEngineCapacity(engineCapacity);
         return car;
     }
     
@@ -161,5 +147,60 @@ class GarageServiceTest {
                 .minCapacity(minCapacity)
                 .maxCapacity(maxCapacity)
                 .build();
+    }
+
+    @Test
+    void shouldReturnPageOfCars_whenFilterApplied() {
+        // Given
+        CarFilterDto filter = createCarFilter("Test", FuelType.GASOLINE, 1500, 2500);
+        Pageable pageable = PageRequest.of(0, 2);
+        List<Car> cars = List.of(
+                createDetailedTestCar("Test Car 1", FuelType.GASOLINE, 2000),
+                createDetailedTestCar("Test Car 2", FuelType.GASOLINE, 1800)
+        );
+        when(carRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(new PageImpl<>(cars));
+
+        // When
+        var result = garageService.getCars(filter, pageable);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.getContent().size());
+        verify(carRepository).findAll(any(Specification.class), eq(pageable));
+    }
+
+    @Test
+    void shouldReturnPaginatedCars_whenNoFilterProvided() {
+        // Given
+        CarFilterDto emptyFilter = createCarFilter(null, null, null, null);
+        Pageable pageable = PageRequest.of(0, 3);
+        List<Car> cars = List.of(
+                createDetailedTestCar("Car A", FuelType.DIESEL, 3000),
+                createDetailedTestCar("Car B", FuelType.ELECTRIC, 0),
+                createDetailedTestCar("Car C", FuelType.GASOLINE, 1800)
+        );
+        when(carRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(new PageImpl<>(cars));
+
+        // When
+        var result = garageService.getCars(emptyFilter, pageable);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(3, result.getContent().size());
+    }
+
+    @Test
+    void shouldReturnEmptyPage_whenNoCarsMatchFilter() {
+        // Given
+        CarFilterDto unmatchedFilter = createCarFilter("Nonexistent", FuelType.HYBRID, 5000, 7000);
+        Pageable pageable = PageRequest.of(0, 2);
+        when(carRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(Page.empty());
+
+        // When
+        var result = garageService.getCars(unmatchedFilter, pageable);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 }

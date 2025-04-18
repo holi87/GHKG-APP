@@ -2,9 +2,11 @@ package ghkg.api;
 
 import ghkg.api.exception.InvalidCarDataException;
 import ghkg.application.GarageService;
-import ghkg.domain.Car;
-import ghkg.domain.FuelType;
+import ghkg.domain.car.Car;
+import ghkg.domain.car.FuelType;
+import ghkg.dto.PageResponse;
 import ghkg.dto.car.CarDto;
+import ghkg.dto.car.CarFilterDto;
 import ghkg.dto.car.CreateCarDto;
 import ghkg.dto.car.UpdateCarDto;
 import ghkg.mapper.CarMapper;
@@ -13,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
@@ -52,20 +56,6 @@ class GarageControllerTest {
                 .fuelType(DEFAULT_FUEL_TYPE)
                 .engineCapacity(DEFAULT_ENGINE_CAPACITY)
                 .build();
-    }
-
-    @Test
-    void shouldReturnAllCarsWhenGetAllIsCalled() {
-        // Arrange
-        when(garageService.getAllCars()).thenReturn(List.of(testCar));
-        
-        // Act
-        List<CarDto> cars = garageController.getAll();
-        
-        // Assert
-        assertEquals(1, cars.size());
-        assertEquals(TEST_CAR_NAME, cars.get(0).name());
-        verify(garageService).getAllCars();
     }
 
     @Test
@@ -109,16 +99,17 @@ class GarageControllerTest {
         verify(garageService).deleteCar(carId);
     }
 
+
     @Test
     void shouldUpdateAndReturnCarWhenUpdateIsCalledWithValidData() {
         // Arrange
         UpdateCarDto updateCarDto = new UpdateCarDto(carId, UPDATED_CAR_NAME, UPDATED_FUEL_TYPE, UPDATED_ENGINE_CAPACITY);
         Car updatedCar = CarMapper.fromUpdateDto(updateCarDto);
         when(garageService.updateCar(carId, updatedCar)).thenReturn(updatedCar);
-        
+
         // Act
         CarDto updatedCarDto = garageController.update(carId, updateCarDto);
-        
+
         // Assert
         assertNotNull(updatedCarDto);
         assertEquals(UPDATED_CAR_NAME, updatedCarDto.name());
@@ -132,14 +123,40 @@ class GarageControllerTest {
         // Arrange
         UUID differentId = UUID.randomUUID();
         UpdateCarDto updateCarDto = new UpdateCarDto(differentId, UPDATED_CAR_NAME, UPDATED_FUEL_TYPE, UPDATED_ENGINE_CAPACITY);
-        
+
         // Act & Assert
         InvalidCarDataException exception = assertThrows(
-            InvalidCarDataException.class, 
+                InvalidCarDataException.class,
             () -> garageController.update(carId, updateCarDto)
         );
-        
+
         assertEquals(ID_MISMATCH_ERROR, exception.getMessage());
         verify(garageService, never()).updateCar(any(), any());
+    }
+
+    @Test
+    void shouldReturnPagedCarsWhenGetCarsIsCalled() {
+        // Arrange
+        CarFilterDto filter = CarFilterDto.builder().build();
+        Pageable pageable = mock(Pageable.class);
+        Page<CarDto> mockPage = mock(Page.class);
+
+        when(garageService.getCars(filter, pageable)).thenReturn(mockPage);
+        when(mockPage.getContent()).thenReturn(List.of(CarMapper.toDto(testCar)));
+        when(mockPage.getTotalElements()).thenReturn(1L);
+        when(mockPage.getTotalPages()).thenReturn(1);
+        when(mockPage.getNumber()).thenReturn(0);
+        when(mockPage.getSize()).thenReturn(1);
+
+        // Act
+        PageResponse<CarDto> response = garageController.getCars(filter, pageable).getBody();
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(1, response.content().size());
+        assertEquals(TEST_CAR_NAME, response.content().get(0).name());
+        assertEquals(1L, response.totalElements());
+        assertEquals(1, response.totalPages());
+        verify(garageService).getCars(filter, pageable);
     }
 }

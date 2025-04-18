@@ -1,7 +1,7 @@
 package ghkg.infrastructure.spec;
 
-import ghkg.domain.Car;
-import ghkg.domain.FuelType;
+import ghkg.domain.car.Car;
+import ghkg.domain.car.FuelType;
 import org.springframework.data.jpa.domain.Specification;
 
 public class CarSpecifications {

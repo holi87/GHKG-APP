@@ -1,4 +1,4 @@
-package ghkg.domain;
+package ghkg.domain.auth;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -7,17 +7,14 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
-
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     defer-datasource-initialization: true
-
   sql:
     init:
       mode: always
-
   h2:
     console:
       enabled: true
@@ -27,7 +24,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, env, beans, mappings, httptrace
+        include: health, info
   info:
     git:
       mode: full
@@ -39,3 +36,12 @@ info:
   app:
     name: GHKG API
     description: API for testing purpose - GHolak and KGomulski
+
+springdoc:
+  default-produces-media-type: application/json
+  swagger-ui:
+    operationsSorter: method
+    tagsSorter: alpha
+    defaultModelsExpandDepth: -1
+    docExpansion: none
+  show-actuator: true
