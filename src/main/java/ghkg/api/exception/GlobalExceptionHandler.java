@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
                 Map.of(
                         "timestamp", LocalDateTime.now(),
                         "error", error,
-                        "message", message
+                        "username", message
                 )
         );
     }
@@ -64,7 +64,7 @@ public class GlobalExceptionHandler {
                 Map.of(
                         "timestamp", LocalDateTime.now(),
                         "error", "Modification denied",
-                        "message", ex.getMessage()
+                        "username", ex.getMessage()
                 )
         );
     }
@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
                 Map.of(
                         "timestamp", LocalDateTime.now(),
                         "error", "Password change failed",
-                        "message", ex.getMessage()
+                        "username", ex.getMessage()
                 )
         );
     }

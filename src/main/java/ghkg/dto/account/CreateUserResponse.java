@@ -4,5 +4,5 @@ import ghkg.domain.account.Role;
 
 import java.util.Set;
 
-public record CreateUserResponse(String message, Set<Role> roles) {
+public record CreateUserResponse(String username, Set<Role> roles) {
 }

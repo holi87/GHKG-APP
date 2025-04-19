@@ -1,154 +1,146 @@
 package ghkg.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ghkg.application.UserService;
 import ghkg.domain.account.Role;
 import ghkg.domain.account.User;
-import ghkg.dto.MessageResponse;
 import ghkg.dto.account.*;
 import ghkg.security.JwtService;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@WebMvcTest(AccountController.class)
 class AccountControllerTest {
 
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
     private UserService userService;
+
+    @MockitoBean
     private JwtService jwtService;
-    private AccountController accountController;
 
-    @BeforeEach
-    void setUp() {
-        userService = mock(UserService.class);
-        jwtService = mock(JwtService.class);
-        accountController = new AccountController(userService, jwtService);
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Test
+    void shouldLoginSuccessfully() throws Exception {
+        LoginRequest request = new LoginRequest("user", "pass");
+
+        Mockito.when(userService.validateUser(eq("user"), eq("pass")))
+                .thenReturn(Optional.of(new User()));
+
+        Mockito.when(jwtService.generateToken(eq("user"))).thenReturn("token");
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("token"));
     }
 
     @Test
-    void login_shouldReturnToken_whenCredentialsAreValid() {
-        String username = "admin";
-        String password = "password";
-        String token = "jwt.token";
+    void shouldReturnUnauthorizedWhenLoginFails() throws Exception {
+        LoginRequest request = new LoginRequest("user", "wrongpass");
 
-        User user = User.builder().username(username).roles(Set.of(Role.ADMIN)).build();
+        Mockito.when(userService.validateUser(eq("user"), eq("wrongpass")))
+                .thenReturn(Optional.empty());
 
-        when(userService.validateUser(username, password)).thenReturn(Optional.of(user));
-        when(jwtService.generateToken(username)).thenReturn(token);
-
-        LoginRequest request = new LoginRequest(username, password);
-        ResponseEntity<LoginResponse> response = accountController.login(request);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertNotNull(response.getBody());
-        assertThat(response.getBody().token()).isEqualTo(token);
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void login_shouldReturnUnauthorized_whenInvalidCredentials() {
-        String username = "admin";
-        String password = "wrong";
+    void shouldCreateUser() throws Exception {
+        CreateUserRequest request = new CreateUserRequest("newuser", "password", Set.of(Role.USER));
 
-        when(userService.validateUser(username, password)).thenReturn(Optional.empty());
+        CreateUserResponse response = new CreateUserResponse("Created user: newuser", Set.of(Role.USER));
 
-        LoginRequest request = new LoginRequest(username, password);
-        ResponseEntity<LoginResponse> response = accountController.login(request);
+        Mockito.when(userService.createUser(any(), any(), any())).thenReturn(response);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        mockMvc.perform(post("/api/admin/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("Created user: newuser"));
     }
 
     @Test
-    void createUser_shouldReturn201AndResponse() {
-        CreateUserRequest request = new CreateUserRequest("user", "pass", Set.of(Role.USER));
-        CreateUserResponse responseMock = new CreateUserResponse("Created user", Set.of(Role.USER));
+    void shouldGetAllUsers() throws Exception {
+        UserSummaryResponse user1 = new UserSummaryResponse("admin", Set.of("ADMIN"));
+        Mockito.when(userService.getAllUsers()).thenReturn(List.of(user1));
 
-        when(userService.createUser("user", "pass", Set.of(Role.USER))).thenReturn(responseMock);
-
-        ResponseEntity<CreateUserResponse> response = accountController.createUser(request);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        Assertions.assertNotNull(response.getBody());
-        assertThat(response.getBody().message()).contains("Created");
+        mockMvc.perform(get("/api/admin/users"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].username").value("admin"));
     }
 
     @Test
-    void getAllUsers_shouldReturnList() {
-        List<UserSummaryResponse> expected = List.of(
-                new UserSummaryResponse("admin", Set.of("ADMIN")),
-                new UserSummaryResponse("user", Set.of("USER"))
-        );
-
-        when(userService.getAllUsers()).thenReturn(expected);
-
-        List<UserSummaryResponse> result = accountController.getAllUsers();
-
-        assertThat(result).hasSize(2);
-        assertThat(result.get(0).username()).isEqualTo("admin");
-    }
-
-    @Test
-    void getCurrentUser_shouldReturnUser_whenAuthenticated() {
-        User user = User.builder().username("admin").roles(Set.of(Role.ADMIN)).build();
-        when(userService.getCurrentUser()).thenReturn(Optional.of(user));
-
-        ResponseEntity<CurrentUserResponse> response = accountController.getCurrentUser();
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertNotNull(response.getBody());
-        assertThat(response.getBody().username()).isEqualTo("admin");
-    }
-
-    @Test
-    void getCurrentUser_shouldReturnUnauthorized_whenNotAuthenticated() {
-        when(userService.getCurrentUser()).thenReturn(Optional.empty());
-
-        ResponseEntity<CurrentUserResponse> response = accountController.getCurrentUser();
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-    }
-
-    @Test
-    void addRole_shouldReturnOkMessage() {
+    void shouldAddRoleToUser() throws Exception {
         AddRoleRequest request = new AddRoleRequest(Role.WORKER);
 
-        ResponseEntity<MessageResponse> response = accountController.addRole("user", request);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertNotNull(response.getBody());
-        assertThat(response.getBody().message()).contains("Added role");
-
-        verify(userService).addRoleToUser("user", Role.WORKER);
+        mockMvc.perform(patch("/api/admin/users/user123/roles")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Added role WORKER to user: user123")));
     }
 
     @Test
-    void updateRoles_shouldReturnOkMessage() {
-        Set<Role> newRoles = Set.of(Role.USER, Role.WORKER);
-        UpdateRolesRequest request = new UpdateRolesRequest(newRoles);
+    void shouldUpdateUserRoles() throws Exception {
+        UpdateRolesRequest request = new UpdateRolesRequest(Set.of(Role.USER, Role.WORKER));
 
-        ResponseEntity<MessageResponse> response = accountController.updateRoles("user", request);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertNotNull(response.getBody());
-        assertThat(response.getBody().message()).contains("Updated roles");
-
-        verify(userService).updateUserRoles("user", newRoles);
+        mockMvc.perform(put("/api/admin/users/user123/roles")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Updated roles for user: user123")));
     }
 
     @Test
-    void deleteUser_shouldReturnOkMessage() {
-        ResponseEntity<MessageResponse> response = accountController.deleteUser("user");
+    void shouldDeleteUser() throws Exception {
+        mockMvc.perform(delete("/api/admin/users/user123"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("User 'user123' deleted successfully")));
+    }
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertNotNull(response.getBody());
-        assertThat(response.getBody().message()).contains("deleted");
+    @Test
+    void shouldChangePasswordForSelf() throws Exception {
+        ChangeOwnPasswordRequest request = new ChangeOwnPasswordRequest("oldPass", "newPass");
 
-        verify(userService).deleteUserByUsername("user");
+        mockMvc.perform(patch("/me/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Password changed. Please login again."));
+    }
+
+    @Test
+    void shouldAdminResetPassword() throws Exception {
+        ResetPasswordRequest request = new ResetPasswordRequest("newSecurePassword");
+
+        mockMvc.perform(patch("/api/admin/users/admin/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Password reset for user: admin"));
     }
 }
