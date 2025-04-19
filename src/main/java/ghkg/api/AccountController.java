@@ -5,6 +5,7 @@ import ghkg.config.ApiPaths;
 import ghkg.dto.MessageResponse;
 import ghkg.dto.account.*;
 import ghkg.security.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,8 @@ public class AccountController {
     private final UserService userService;
     private final JwtService jwtService;
 
+
+    @Operation(summary = "User login", tags = {"Public"})
     @PostMapping(ApiPaths.AUTH + "/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         return userService.validateUser(request.username(), request.password())
@@ -31,6 +34,7 @@ public class AccountController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
+    @Operation(summary = "Create new user", tags = {"Admin"})
     @PostMapping(ApiPaths.ADMIN_USERS)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CreateUserResponse> createUser(@RequestBody @Valid CreateUserRequest request) {
@@ -40,12 +44,14 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(summary = "Get all users", tags = {"Admin"})
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(ApiPaths.ADMIN_USERS)
     public List<UserSummaryResponse> getAllUsers() {
         return userService.getAllUsers();
     }
 
+    @Operation(summary = "Get current user info", tags = {"User"})
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<CurrentUserResponse> getCurrentUser() {
@@ -54,6 +60,7 @@ public class AccountController {
                 .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
+    @Operation(summary = "Add role to user", tags = {"Admin"})
     @PatchMapping(ApiPaths.ADMIN_USERS + "/{username}/roles")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> addRole(
@@ -64,6 +71,7 @@ public class AccountController {
         return ResponseEntity.ok(new MessageResponse("Added role " + request.role() + " to user: " + username));
     }
 
+    @Operation(summary = "Edit roles for user", tags = {"Admin"})
     @PutMapping(ApiPaths.ADMIN_USERS + "/{username}/roles")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> updateRoles(
@@ -74,6 +82,7 @@ public class AccountController {
         return ResponseEntity.ok(new MessageResponse("Updated roles for user: " + username));
     }
 
+    @Operation(summary = "Delete an user", tags = {"Admin"})
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/users/{username}")
     public ResponseEntity<MessageResponse> deleteUser(@PathVariable String username) {

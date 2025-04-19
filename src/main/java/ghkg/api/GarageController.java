@@ -11,6 +11,7 @@ import ghkg.dto.car.CreateCarDto;
 import ghkg.dto.car.UpdateCarDto;
 import ghkg.mapper.CarMapper;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ import java.util.UUID;
         produces = "application/json"
 )
 @RequiredArgsConstructor
+@Tag(name = "Garage", description = "Endpoints for managing cars in garage")
 public class GarageController extends BaseController {
 
     private final GarageService garageService;
