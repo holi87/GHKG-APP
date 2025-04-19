@@ -12,6 +12,6 @@ public record CreateTripRequest(
         double distance,
         Duration duration,
         Integer rating
-) {
+) implements TripRequest {
 }
 

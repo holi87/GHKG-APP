@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Duration;
-import java.util.UUID;
 
 @Entity
 @Table(name = "trips")
@@ -19,8 +18,8 @@ import java.util.UUID;
 public class Trip {
 
     @Id
-    @GeneratedValue
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     private String name;
 

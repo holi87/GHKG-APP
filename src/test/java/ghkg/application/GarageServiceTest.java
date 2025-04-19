@@ -37,7 +37,7 @@ class GarageServiceTest {
         CarFilterDto filter = new CarFilterDto("Tesla", FuelType.ELECTRIC, null, null);
         Pageable pageable = PageRequest.of(0, 10);
         Car car = Car.builder()
-                .id(UUID.randomUUID())
+                .id(UUID.randomUUID().getMostSignificantBits())
                 .name("Tesla")
                 .fuelType(FuelType.ELECTRIC)
                 .engineCapacity(0)
@@ -54,7 +54,7 @@ class GarageServiceTest {
 
     @Test
     void shouldReturnCarById() {
-        UUID id = UUID.randomUUID();
+        Long id = UUID.randomUUID().getMostSignificantBits();
         Car car = new Car(id, "BMW", 2000, FuelType.GASOLINE);
         when(carRepository.findById(id)).thenReturn(Optional.of(car));
 
@@ -65,7 +65,7 @@ class GarageServiceTest {
 
     @Test
     void shouldThrowWhenCarNotFoundById() {
-        UUID id = UUID.randomUUID();
+        Long id = UUID.randomUUID().getMostSignificantBits();
         when(carRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> garageService.getCarById(id))
@@ -76,7 +76,7 @@ class GarageServiceTest {
     @Test
     void shouldAddCar() {
         Car car = new Car(null, "Hyundai", 1600, FuelType.HYBRID);
-        Car saved = new Car(UUID.randomUUID(), "Hyundai", 1600, FuelType.HYBRID);
+        Car saved = new Car(1L, "Hyundai", 1600, FuelType.HYBRID);
 
         when(carRepository.save(car)).thenReturn(saved);
 
@@ -88,7 +88,7 @@ class GarageServiceTest {
 
     @Test
     void shouldUpdateCar() {
-        UUID id = UUID.randomUUID();
+        Long id = 1L;
         Car car = new Car(null, "VW", 1900, FuelType.DIESEL);
         Car updated = new Car(id, "VW", 1900, FuelType.DIESEL);
 
@@ -102,7 +102,7 @@ class GarageServiceTest {
 
     @Test
     void shouldDeleteCar() {
-        UUID id = UUID.randomUUID();
+        Long id = UUID.randomUUID().getMostSignificantBits();
         when(carRepository.existsById(id)).thenReturn(true);
 
         garageService.deleteCar(id);
@@ -112,7 +112,7 @@ class GarageServiceTest {
 
     @Test
     void shouldThrowWhenDeletingMissingCar() {
-        UUID id = UUID.randomUUID();
+        Long id = 1L;
         when(carRepository.existsById(id)).thenReturn(false);
 
         assertThatThrownBy(() -> garageService.deleteCar(id))

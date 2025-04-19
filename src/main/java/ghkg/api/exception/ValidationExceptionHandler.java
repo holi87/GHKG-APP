@@ -19,7 +19,7 @@ public class ValidationExceptionHandler {
                 .collect(Collectors.toMap(
                         err -> err.getField(),
                         err -> err.getDefaultMessage(),
-                        (a, b) -> b // duplikaty ignorujemy
+                        (a, b) -> b
                 ));
 
         return ResponseEntity.badRequest().body(errors);

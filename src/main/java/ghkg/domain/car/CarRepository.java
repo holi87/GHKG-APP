@@ -5,13 +5,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public interface CarRepository {
-    Optional<Car> findById(UUID id);
+    Optional<Car> findById(Long id);
     Car save(Car car);
-    void deleteById(UUID id);
+
+    void deleteById(Long id);
 
     Page<Car> findAll(Specification<Car> spec, Pageable pageable);
-    boolean existsById(UUID id);
+
+    boolean existsById(Long id);
 }

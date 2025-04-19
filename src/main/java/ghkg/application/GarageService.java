@@ -15,8 +15,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -33,7 +31,7 @@ public class GarageService {
         return carRepository.findAll(spec, pageable).map(CarMapper::toDto);
     }
 
-    public Car getCarById(UUID id) {
+    public Car getCarById(Long id) {
         return carRepository.findById(id)
                 .orElseThrow(() -> new CarNotFoundException("Car with ID: " + id + " not found"));
     }
@@ -43,13 +41,13 @@ public class GarageService {
         return carRepository.save(car);
     }
 
-    public Car updateCar(UUID id, Car car) {
+    public Car updateCar(Long id, Car car) {
         CarValidator.validate(car);
         car.setId(id);
         return carRepository.save(car);
     }
 
-    public void deleteCar(UUID id) {
+    public void deleteCar(Long id) {
         if (!carRepository.existsById(id)) {
             throw new CarNotFoundException("Car with ID " + id + " not found");
         }
