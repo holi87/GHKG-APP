@@ -5,11 +5,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 
-// ku pamięci - w koncu trzeba to zrobic - trip ma dzialac na zasadzie ze geta moze miec kazdy user, a dodawac,edytowac, usuwac tylko worker lub admin
-
 public class TripEndpoints {
     public static void configure(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
-        auth.requestMatchers(HttpMethod.GET, ApiPaths.TRIPS + "/**").hasAnyRole("USER", "WORKER", "ADMIN");
-        auth.requestMatchers(ApiPaths.TRIPS + "/**").hasAnyRole("WORKER", "ADMIN");
+        auth.requestMatchers(HttpMethod.GET, ApiPaths.TRIPS).hasAnyRole("USER", "WORKER", "ADMIN");
+        auth.requestMatchers(HttpMethod.GET, ApiPaths.TRIPS + "/{id}").hasRole("USER");
+        auth.requestMatchers(HttpMethod.POST, ApiPaths.TRIPS).hasAnyRole("WORKER", "ADMIN");
+        auth.requestMatchers(HttpMethod.PUT, ApiPaths.TRIPS + "/{id}").hasAnyRole("WORKER", "ADMIN");
+        auth.requestMatchers(HttpMethod.DELETE, ApiPaths.TRIPS + "/{id}").hasRole("ADMIN");
     }
 }

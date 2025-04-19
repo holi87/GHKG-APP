@@ -21,8 +21,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping(
         value = ApiPaths.CARS,
@@ -48,7 +46,7 @@ public class GarageController extends BaseController {
     }
 
     @GetMapping("/{id}")
-    public CarDto getById(@PathVariable UUID id) {
+    public CarDto getById(@PathVariable Long id) {
         return CarMapper.toDto(garageService.getCarById(id));
     }
 
@@ -59,7 +57,7 @@ public class GarageController extends BaseController {
     }
 
     @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
-    public CarDto update(@PathVariable UUID id, @RequestBody UpdateCarDto dto) {
+    public CarDto update(@PathVariable Long id, @RequestBody UpdateCarDto dto) {
         if (!id.equals(dto.id())) {
             throw new InvalidCarDataException("Path ID and payload ID do not match");
         }
@@ -68,7 +66,7 @@ public class GarageController extends BaseController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable UUID id) {
+    public void delete(@PathVariable Long id) {
         garageService.deleteCar(id);
     }
 }

@@ -48,6 +48,26 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", ex.getMessage());
     }
 
+    @ExceptionHandler(CannotModifySuperAdminException.class)
+    public ResponseEntity<Map<String, Object>> handleSuperAdminModification(CannotModifySuperAdminException ex) {
+        return buildResponse(HttpStatus.FORBIDDEN, "Modification denied", ex.getMessage());
+    }
+
+    @ExceptionHandler(PasswordChangeException.class)
+    public ResponseEntity<Map<String, Object>> handlePasswordChangeException(PasswordChangeException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Password change failed", ex.getMessage());
+    }
+
+    @ExceptionHandler(TripNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleTripNotFound(TripNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, "Trip not found", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidTripException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidTrip(InvalidTripException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, "Invalid trip", ex.getMessage());
+    }
+
     private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String error, String message) {
         return ResponseEntity.status(status).body(
                 Map.of(
@@ -58,25 +78,4 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(CannotModifySuperAdminException.class)
-    public ResponseEntity<Map<String, Object>> handleSuperAdminModification(CannotModifySuperAdminException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "error", "Modification denied",
-                        "message", ex.getMessage()
-                )
-        );
-    }
-
-    @ExceptionHandler(PasswordChangeException.class)
-    public ResponseEntity<Map<String, Object>> handlePasswordChangeException(PasswordChangeException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "error", "Password change failed",
-                        "message", ex.getMessage()
-                )
-        );
-    }
 }

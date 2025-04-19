@@ -36,9 +36,10 @@ class GarageControllerTest {
     @Test
     void shouldGetCarsWithPaginationAndFilter() {
         // given
+        Long id = UUID.randomUUID().getMostSignificantBits();
         CarFilterDto filter = new CarFilterDto("Tesla", null, null, null);
         Pageable pageable = PageRequest.of(0, 10);
-        CarDto carDto = new CarDto(UUID.randomUUID(), "Tesla", ghkg.domain.car.FuelType.ELECTRIC, 0);
+        CarDto carDto = new CarDto(id, "Tesla", ghkg.domain.car.FuelType.ELECTRIC, 0);
         Page<CarDto> page = new PageImpl<>(List.of(carDto));
 
         when(garageService.getCars(filter, pageable)).thenReturn(page);
@@ -55,7 +56,7 @@ class GarageControllerTest {
     @Test
     void shouldGetCarById() {
         // given
-        UUID id = UUID.randomUUID();
+        Long id = UUID.randomUUID().getMostSignificantBits();
         Car car = Car.builder().id(id).name("Car").fuelType(ghkg.domain.car.FuelType.GASOLINE).engineCapacity(1000).build();
 
         when(garageService.getCarById(id)).thenReturn(car);
@@ -71,8 +72,9 @@ class GarageControllerTest {
     @Test
     void shouldAddNewCar() {
         // given
+        Long id = UUID.randomUUID().getMostSignificantBits();
         CreateCarDto createDto = new CreateCarDto("NewCar", ghkg.domain.car.FuelType.DIESEL, 1600);
-        Car saved = Car.builder().id(UUID.randomUUID()).name("NewCar").fuelType(ghkg.domain.car.FuelType.DIESEL).engineCapacity(1600).build();
+        Car saved = Car.builder().id(id).name("NewCar").fuelType(ghkg.domain.car.FuelType.DIESEL).engineCapacity(1600).build();
 
         when(garageService.addCar(any(Car.class))).thenReturn(saved);
 
@@ -87,7 +89,7 @@ class GarageControllerTest {
     @Test
     void shouldUpdateCar() {
         // given
-        UUID id = UUID.randomUUID();
+        Long id = UUID.randomUUID().getMostSignificantBits();
         UpdateCarDto dto = new UpdateCarDto(id, "Updated", ghkg.domain.car.FuelType.GASOLINE, 1200);
         Car updatedCar = CarMapper.fromUpdateDto(dto);
 
@@ -104,7 +106,7 @@ class GarageControllerTest {
     @Test
     void shouldDeleteCar() {
         // given
-        UUID id = UUID.randomUUID();
+        Long id = UUID.randomUUID().getMostSignificantBits();
 
         // when
         controller.delete(id);

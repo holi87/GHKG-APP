@@ -27,7 +27,7 @@ http://localhost:8081/swagger-ui/index.html
 ## 🐳 Step 4: basic admin credentials
 
 ```bash
-username: admin
+usernames: super, admin, user, worker
 password: Tesla.123
 ```
 
