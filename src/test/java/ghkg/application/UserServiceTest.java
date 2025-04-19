@@ -55,7 +55,7 @@ class UserServiceTest {
 
         CreateUserResponse response = userService.createUser(username, rawPassword, roles);
 
-        assertThat(response.username()).isEqualTo("john");
+        assertThat(response.message()).isEqualTo("Created user: john");
         assertThat(response.roles()).containsExactly(Role.USER);
         verify(userRepository).save(any(User.class));
     }
