@@ -1,0 +1,46 @@
+package ghkg.domain.trips;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.Duration;
+import java.util.UUID;
+
+@Entity
+@Table(name = "trips")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Trip {
+
+    @Id
+    @GeneratedValue
+    private UUID id;
+
+    private String name;
+
+    @Enumerated(EnumType.STRING)
+    private TripType type;
+
+    private String startLocation;
+
+    private String destination;
+
+    @NotNull
+    @Positive
+    private double distance;
+
+    @PositiveOrZero
+    private Duration duration;
+
+    @Min(0)
+    @Max(10)
+    private Integer rating;
+
+}
+
