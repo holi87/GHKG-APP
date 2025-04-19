@@ -44,4 +44,12 @@ public class AuthController {
     public List<UserSummaryResponse> getAllUsers() {
         return userService.getAllUsers();
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/me")
+    public ResponseEntity<CurrentUserResponse> getCurrentUser() {
+        return userService.getCurrentUser()
+                .map(user -> ResponseEntity.ok(new CurrentUserResponse(user.getUsername(), user.getRoles())))
+                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+    }
 }
