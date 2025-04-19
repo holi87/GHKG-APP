@@ -72,7 +72,6 @@ class GarageControllerTest {
     void shouldAddNewCar() {
         // given
         CreateCarDto createDto = new CreateCarDto("NewCar", ghkg.domain.car.FuelType.DIESEL, 1600);
-        Car car = CarMapper.fromCreateDto(createDto);
         Car saved = Car.builder().id(UUID.randomUUID()).name("NewCar").fuelType(ghkg.domain.car.FuelType.DIESEL).engineCapacity(1600).build();
 
         when(garageService.addCar(any(Car.class))).thenReturn(saved);
