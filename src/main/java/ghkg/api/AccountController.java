@@ -2,6 +2,7 @@ package ghkg.api;
 
 import ghkg.application.UserService;
 import ghkg.config.ApiPaths;
+import ghkg.dto.MessageResponse;
 import ghkg.dto.auth.*;
 import ghkg.security.JwtService;
 import jakarta.validation.Valid;
@@ -16,21 +17,21 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(ApiPaths.AUTH)
+@RequestMapping
 @RequiredArgsConstructor
-public class AuthController {
+public class AccountController {
 
     private final UserService userService;
     private final JwtService jwtService;
 
-    @PostMapping("/login")
+    @PostMapping(ApiPaths.AUTH + "/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         return userService.validateUser(request.username(), request.password())
                 .map(user -> ResponseEntity.ok(new LoginResponse(jwtService.generateToken(user.getUsername()))))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
-    @PostMapping("/users")
+    @PostMapping(ApiPaths.ADMIN_USERS)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CreateUserResponse> createUser(@RequestBody @Valid CreateUserRequest request) {
         CreateUserResponse response = userService.createUser(
@@ -40,7 +41,7 @@ public class AuthController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/users")
+    @GetMapping(ApiPaths.ADMIN_USERS)
     public List<UserSummaryResponse> getAllUsers() {
         return userService.getAllUsers();
     }
@@ -51,5 +52,32 @@ public class AuthController {
         return userService.getCurrentUser()
                 .map(user -> ResponseEntity.ok(new CurrentUserResponse(user.getUsername(), user.getRoles())))
                 .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+    }
+
+    @PatchMapping(ApiPaths.ADMIN_USERS + "/{username}/roles")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> addRole(
+            @PathVariable String username,
+            @RequestBody @Valid AddRoleRequest request
+    ) {
+        userService.addRoleToUser(username, request.role());
+        return ResponseEntity.ok(new MessageResponse("Added role " + request.role() + " to user: " + username));
+    }
+
+    @PutMapping(ApiPaths.ADMIN_USERS + "/{username}/roles")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> updateRoles(
+            @PathVariable String username,
+            @RequestBody @Valid UpdateRolesRequest request
+    ) {
+        userService.updateUserRoles(username, request.roles());
+        return ResponseEntity.ok(new MessageResponse("Updated roles for user: " + username));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/admin/users/{username}")
+    public ResponseEntity<MessageResponse> deleteUser(@PathVariable String username) {
+        userService.deleteUserByUsername(username);
+        return ResponseEntity.ok(new MessageResponse("User '" + username + "' deleted successfully"));
     }
 }

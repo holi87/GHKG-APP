@@ -1,5 +1,6 @@
 package ghkg.application;
 
+import ghkg.api.exception.CannotModifySuperAdminException;
 import ghkg.domain.auth.Role;
 import ghkg.domain.auth.User;
 import ghkg.dto.auth.CreateUserResponse;
@@ -9,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -70,5 +73,44 @@ public class UserService {
 
         String username = authentication.getName();
         return userRepository.findByUsername(username);
+    }
+
+    @Transactional
+    public void addRoleToUser(String username, Role role) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        if (!user.getRoles().contains(role)) {
+            user.getRoles().add(role);
+            userRepository.save(user);
+        }
+    }
+
+    @Transactional
+    public void updateUserRoles(String username, Set<Role> newRoles) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        if ("admin".equalsIgnoreCase(user.getUsername()) && !newRoles.contains(Role.ADMIN)) {
+            throw new CannotModifySuperAdminException("Cannot remove ADMIN role from the 'admin' user.");
+        }
+
+        user.setRoles(newRoles);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUserByUsername(String username) {
+        if ("admin".equalsIgnoreCase(username)) {
+            throw new CannotModifySuperAdminException("Cannot delete the 'admin' user.");
+        }
+
+        userRepository.findByUsername(username)
+                .ifPresentOrElse(
+                        userRepository::delete,
+                        () -> {
+                            throw new UsernameNotFoundException("User '" + username + "' not found");
+                        }
+                );
     }
 }

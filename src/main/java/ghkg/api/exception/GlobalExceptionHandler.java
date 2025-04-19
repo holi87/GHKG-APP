@@ -57,4 +57,15 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
+    @ExceptionHandler(CannotModifySuperAdminException.class)
+    public ResponseEntity<Map<String, Object>> handleSuperAdminModification(CannotModifySuperAdminException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "error", "Modification denied",
+                        "message", ex.getMessage()
+                )
+        );
+    }
 }
