@@ -1,6 +1,6 @@
-package ghkg.dto.auth;
+package ghkg.dto.account;
 
-import ghkg.domain.auth.Role;
+import ghkg.domain.account.Role;
 import jakarta.validation.constraints.NotNull;
 
 public record AddRoleRequest(

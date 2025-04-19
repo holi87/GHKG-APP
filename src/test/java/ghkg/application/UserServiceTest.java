@@ -1,9 +1,9 @@
 package ghkg.application;
 
 import ghkg.api.exception.CannotModifySuperAdminException;
-import ghkg.domain.auth.Role;
-import ghkg.domain.auth.User;
-import ghkg.dto.auth.CreateUserResponse;
+import ghkg.domain.account.Role;
+import ghkg.domain.account.User;
+import ghkg.dto.account.CreateUserResponse;
 import ghkg.infrastructure.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

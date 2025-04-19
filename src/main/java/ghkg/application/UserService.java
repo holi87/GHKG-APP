@@ -1,10 +1,10 @@
 package ghkg.application;
 
 import ghkg.api.exception.CannotModifySuperAdminException;
-import ghkg.domain.auth.Role;
-import ghkg.domain.auth.User;
-import ghkg.dto.auth.CreateUserResponse;
-import ghkg.dto.auth.UserSummaryResponse;
+import ghkg.domain.account.Role;
+import ghkg.domain.account.User;
+import ghkg.dto.account.CreateUserResponse;
+import ghkg.dto.account.UserSummaryResponse;
 import ghkg.infrastructure.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

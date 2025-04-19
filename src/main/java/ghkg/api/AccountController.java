@@ -3,7 +3,7 @@ package ghkg.api;
 import ghkg.application.UserService;
 import ghkg.config.ApiPaths;
 import ghkg.dto.MessageResponse;
-import ghkg.dto.auth.*;
+import ghkg.dto.account.*;
 import ghkg.security.JwtService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

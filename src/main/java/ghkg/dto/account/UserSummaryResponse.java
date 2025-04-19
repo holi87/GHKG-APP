@@ -1,4 +1,4 @@
-package ghkg.dto.auth;
+package ghkg.dto.account;
 
 import java.util.Set;
 

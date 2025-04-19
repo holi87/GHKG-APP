@@ -1,7 +1,7 @@
 package ghkg.infrastructure.repository;
 
 
-import ghkg.domain.auth.User;
+import ghkg.domain.account.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

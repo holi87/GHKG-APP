@@ -1,10 +1,10 @@
 package ghkg.api;
 
 import ghkg.application.UserService;
-import ghkg.domain.auth.Role;
-import ghkg.domain.auth.User;
+import ghkg.domain.account.Role;
+import ghkg.domain.account.User;
 import ghkg.dto.MessageResponse;
-import ghkg.dto.auth.*;
+import ghkg.dto.account.*;
 import ghkg.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
