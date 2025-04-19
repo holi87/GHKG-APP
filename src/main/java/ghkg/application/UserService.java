@@ -1,6 +1,7 @@
 package ghkg.application;
 
 import ghkg.api.exception.CannotModifySuperAdminException;
+import ghkg.application.validation.PasswordValidationService;
 import ghkg.domain.account.Role;
 import ghkg.domain.account.User;
 import ghkg.dto.account.CreateUserResponse;
@@ -27,6 +28,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordValidationService passwordValidationService;
 
     public CreateUserResponse createUser(String username, String rawPassword, Set<Role> roles) {
         if (userRepository.findByUsername(username).isPresent()) {
@@ -112,5 +114,40 @@ public class UserService {
                             throw new UsernameNotFoundException("User '" + username + "' not found");
                         }
                 );
+    }
+
+    @Transactional
+    public void changeOwnPassword(String currentPassword, String newPassword) {
+        User user = getAuthenticatedUser();
+
+        passwordValidationService.validateCurrentPassword(user, currentPassword);
+        passwordValidationService.validatePasswordChange(user, newPassword);
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateUserPasswordByAdmin(String username, String newPassword) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        passwordValidationService.validatePasswordChange(user, newPassword);
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("No authenticated user found");
+        }
+
+        String username = authentication.getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 }

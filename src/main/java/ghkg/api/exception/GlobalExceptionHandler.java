@@ -68,4 +68,15 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
+    @ExceptionHandler(PasswordChangeException.class)
+    public ResponseEntity<Map<String, Object>> handlePasswordChangeException(PasswordChangeException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "error", "Password change failed",
+                        "message", ex.getMessage()
+                )
+        );
+    }
 }

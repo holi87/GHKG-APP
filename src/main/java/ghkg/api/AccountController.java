@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -88,5 +89,25 @@ public class AccountController {
     public ResponseEntity<MessageResponse> deleteUser(@PathVariable String username) {
         userService.deleteUserByUsername(username);
         return ResponseEntity.ok(new MessageResponse("User '" + username + "' deleted successfully"));
+    }
+
+    @Operation(summary = "Admin updates user password", tags = {"Admin"})
+    @PatchMapping(ApiPaths.ADMIN_USERS + "/{username}/password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> adminResetPassword(
+            @PathVariable String username,
+            @RequestBody @Valid ResetPasswordRequest request
+    ) {
+        userService.updateUserPasswordByAdmin(username, request.newPassword());
+        return ResponseEntity.ok(new MessageResponse("Password reset for user: " + username));
+    }
+
+    @Operation(summary = "Change own password", tags = {"User"})
+    @PatchMapping("/me/password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MessageResponse> changeOwnPassword(@RequestBody @Valid ChangeOwnPasswordRequest request) {
+        userService.changeOwnPassword(request.currentPassword(), request.newPassword());
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok(new MessageResponse("Password changed. Please login again."));
     }
 }
