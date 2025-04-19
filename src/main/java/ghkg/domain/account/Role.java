@@ -1,4 +1,4 @@
-package ghkg.domain.auth;
+package ghkg.domain.account;
 
 public enum Role {
     ADMIN,

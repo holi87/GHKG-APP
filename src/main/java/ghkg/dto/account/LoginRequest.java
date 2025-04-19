@@ -1,4 +1,4 @@
-package ghkg.dto.auth;
+package ghkg.dto.account;
 
 public record LoginRequest(String username, String password) {
 }

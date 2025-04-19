@@ -1,16 +1,26 @@
 package ghkg.application;
 
-import ghkg.domain.auth.Role;
-import ghkg.domain.auth.User;
-import ghkg.dto.auth.CreateUserResponse;
+import ghkg.api.exception.CannotModifySuperAdminException;
+import ghkg.application.validation.PasswordValidationService;
+import ghkg.domain.account.Role;
+import ghkg.domain.account.User;
+import ghkg.dto.account.CreateUserResponse;
+import ghkg.dto.account.UserSummaryResponse;
 import ghkg.infrastructure.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -18,6 +28,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordValidationService passwordValidationService;
 
     public CreateUserResponse createUser(String username, String rawPassword, Set<Role> roles) {
         if (userRepository.findByUsername(username).isPresent()) {
@@ -42,5 +53,101 @@ public class UserService {
     public Optional<User> validateUser(String username, String rawPassword) {
         return userRepository.findByUsername(username)
                 .filter(user -> passwordEncoder.matches(rawPassword, user.getPassword()));
+    }
+
+    public List<UserSummaryResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(user -> new UserSummaryResponse(
+                        user.getUsername(),
+                        user.getRoles().stream()
+                                .map(Enum::name)
+                                .collect(Collectors.toSet())
+                ))
+                .toList();
+    }
+
+    public Optional<User> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return Optional.empty();
+        }
+
+        String username = authentication.getName();
+        return userRepository.findByUsername(username);
+    }
+
+    @Transactional
+    public void addRoleToUser(String username, Role role) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        if (!user.getRoles().contains(role)) {
+            user.getRoles().add(role);
+            userRepository.save(user);
+        }
+    }
+
+    @Transactional
+    public void updateUserRoles(String username, Set<Role> newRoles) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        if ("admin".equalsIgnoreCase(user.getUsername()) && !newRoles.contains(Role.ADMIN)) {
+            throw new CannotModifySuperAdminException("Cannot remove ADMIN role from the 'admin' user.");
+        }
+
+        user.setRoles(newRoles);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUserByUsername(String username) {
+        if ("admin".equalsIgnoreCase(username)) {
+            throw new CannotModifySuperAdminException("Cannot delete the 'admin' user.");
+        }
+
+        userRepository.findByUsername(username)
+                .ifPresentOrElse(
+                        userRepository::delete,
+                        () -> {
+                            throw new UsernameNotFoundException("User '" + username + "' not found");
+                        }
+                );
+    }
+
+    @Transactional
+    public void changeOwnPassword(String currentPassword, String newPassword) {
+        User user = getAuthenticatedUser();
+
+        passwordValidationService.validateCurrentPassword(user, currentPassword);
+        passwordValidationService.validatePasswordChange(user, newPassword);
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateUserPasswordByAdmin(String username, String newPassword) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        passwordValidationService.validatePasswordChange(user, newPassword);
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("No authenticated user found");
+        }
+
+        String username = authentication.getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 }

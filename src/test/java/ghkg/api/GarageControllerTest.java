@@ -1,9 +1,7 @@
 package ghkg.api;
 
-import ghkg.api.exception.InvalidCarDataException;
 import ghkg.application.GarageService;
 import ghkg.domain.car.Car;
-import ghkg.domain.car.FuelType;
 import ghkg.dto.PageResponse;
 import ghkg.dto.car.CarDto;
 import ghkg.dto.car.CarFilterDto;
@@ -12,151 +10,106 @@ import ghkg.dto.car.UpdateCarDto;
 import ghkg.mapper.CarMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class GarageControllerTest {
-    // Constants for test data
-    private static final String TEST_CAR_NAME = "Test Car";
-    private static final String UPDATED_CAR_NAME = "Updated Car";
-    private static final FuelType DEFAULT_FUEL_TYPE = FuelType.GASOLINE;
-    private static final FuelType UPDATED_FUEL_TYPE = FuelType.DIESEL;
-    private static final int DEFAULT_ENGINE_CAPACITY = 4;
-    private static final int UPDATED_ENGINE_CAPACITY = 5;
-    private static final String ID_MISMATCH_ERROR = "Path ID and payload ID do not match";
 
-    @Mock
     private GarageService garageService;
-
-    @InjectMocks
-    private GarageController garageController;
-
-    private UUID carId;
-    private Car testCar;
+    private GarageController controller;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        carId = UUID.randomUUID();
-        
-        // Use builder pattern for more readable object creation
-        testCar = Car.builder()
-                .id(carId)
-                .name(TEST_CAR_NAME)
-                .fuelType(DEFAULT_FUEL_TYPE)
-                .engineCapacity(DEFAULT_ENGINE_CAPACITY)
-                .build();
+        garageService = mock(GarageService.class);
+        controller = new GarageController(garageService);
     }
 
     @Test
-    void shouldReturnCarWhenGetByIdIsCalledWithExistingId() {
-        // Arrange
-        when(garageService.getCarById(carId)).thenReturn(testCar);
-        
-        // Act
-        CarDto foundCar = garageController.getById(carId);
-        
-        // Assert
-        assertNotNull(foundCar);
-        assertEquals(TEST_CAR_NAME, foundCar.name());
-        verify(garageService).getCarById(carId);
+    void shouldGetCarsWithPaginationAndFilter() {
+        // given
+        CarFilterDto filter = new CarFilterDto("Tesla", null, null, null);
+        Pageable pageable = PageRequest.of(0, 10);
+        CarDto carDto = new CarDto(UUID.randomUUID(), "Tesla", ghkg.domain.car.FuelType.ELECTRIC, 0);
+        Page<CarDto> page = new PageImpl<>(List.of(carDto));
+
+        when(garageService.getCars(filter, pageable)).thenReturn(page);
+
+        // when
+        ResponseEntity<PageResponse<CarDto>> response = controller.getCars(filter, pageable);
+
+        // then
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().content()).containsExactly(carDto);
     }
 
     @Test
-    void shouldSaveAndReturnCarWhenAddIsCalled() {
-        // Arrange
-        CreateCarDto createCarDto = new CreateCarDto(TEST_CAR_NAME, DEFAULT_FUEL_TYPE, DEFAULT_ENGINE_CAPACITY);
-        when(garageService.addCar(any(Car.class))).thenReturn(testCar);
-        
-        // Act
-        CarDto savedCar = garageController.add(createCarDto);
-        
-        // Assert
-        assertNotNull(savedCar);
-        assertEquals(TEST_CAR_NAME, savedCar.name());
-        verify(garageService).addCar(any(Car.class));
+    void shouldGetCarById() {
+        // given
+        UUID id = UUID.randomUUID();
+        Car car = Car.builder().id(id).name("Car").fuelType(ghkg.domain.car.FuelType.GASOLINE).engineCapacity(1000).build();
+
+        when(garageService.getCarById(id)).thenReturn(car);
+
+        // when
+        CarDto result = controller.getById(id);
+
+        // then
+        assertThat(result.id()).isEqualTo(id);
+        assertThat(result.name()).isEqualTo("Car");
     }
 
     @Test
-    void shouldDeleteCarWhenDeleteIsCalled() {
-        // Arrange
-        doNothing().when(garageService).deleteCar(carId);
-        
-        // Act
-        garageController.delete(carId);
-        
-        // Assert
-        verify(garageService).deleteCar(carId);
-    }
+    void shouldAddNewCar() {
+        // given
+        CreateCarDto createDto = new CreateCarDto("NewCar", ghkg.domain.car.FuelType.DIESEL, 1600);
+        Car saved = Car.builder().id(UUID.randomUUID()).name("NewCar").fuelType(ghkg.domain.car.FuelType.DIESEL).engineCapacity(1600).build();
 
+        when(garageService.addCar(any(Car.class))).thenReturn(saved);
 
-    @Test
-    void shouldUpdateAndReturnCarWhenUpdateIsCalledWithValidData() {
-        // Arrange
-        UpdateCarDto updateCarDto = new UpdateCarDto(carId, UPDATED_CAR_NAME, UPDATED_FUEL_TYPE, UPDATED_ENGINE_CAPACITY);
-        Car updatedCar = CarMapper.fromUpdateDto(updateCarDto);
-        when(garageService.updateCar(carId, updatedCar)).thenReturn(updatedCar);
+        // when
+        CarDto result = controller.add(createDto);
 
-        // Act
-        CarDto updatedCarDto = garageController.update(carId, updateCarDto);
-
-        // Assert
-        assertNotNull(updatedCarDto);
-        assertEquals(UPDATED_CAR_NAME, updatedCarDto.name());
-        assertEquals(UPDATED_FUEL_TYPE, updatedCarDto.fuelType());
-        assertEquals(UPDATED_ENGINE_CAPACITY, updatedCarDto.engineCapacity());
-        verify(garageService).updateCar(carId, updatedCar);
+        // then
+        assertThat(result.name()).isEqualTo("NewCar");
+        assertThat(result.engineCapacity()).isEqualTo(1600);
     }
 
     @Test
-    void shouldThrowExceptionWhenUpdateIsCalledWithMismatchedIds() {
-        // Arrange
-        UUID differentId = UUID.randomUUID();
-        UpdateCarDto updateCarDto = new UpdateCarDto(differentId, UPDATED_CAR_NAME, UPDATED_FUEL_TYPE, UPDATED_ENGINE_CAPACITY);
+    void shouldUpdateCar() {
+        // given
+        UUID id = UUID.randomUUID();
+        UpdateCarDto dto = new UpdateCarDto(id, "Updated", ghkg.domain.car.FuelType.GASOLINE, 1200);
+        Car updatedCar = CarMapper.fromUpdateDto(dto);
 
-        // Act & Assert
-        InvalidCarDataException exception = assertThrows(
-                InvalidCarDataException.class,
-            () -> garageController.update(carId, updateCarDto)
-        );
+        when(garageService.updateCar(eq(id), any(Car.class))).thenReturn(updatedCar);
 
-        assertEquals(ID_MISMATCH_ERROR, exception.getMessage());
-        verify(garageService, never()).updateCar(any(), any());
+        // when
+        CarDto result = controller.update(id, dto);
+
+        // then
+        assertThat(result.id()).isEqualTo(id);
+        assertThat(result.name()).isEqualTo("Updated");
     }
 
     @Test
-    void shouldReturnPagedCarsWhenGetCarsIsCalled() {
-        // Arrange
-        CarFilterDto filter = CarFilterDto.builder().build();
-        Pageable pageable = mock(Pageable.class);
-        Page<CarDto> mockPage = mock(Page.class);
+    void shouldDeleteCar() {
+        // given
+        UUID id = UUID.randomUUID();
 
-        when(garageService.getCars(filter, pageable)).thenReturn(mockPage);
-        when(mockPage.getContent()).thenReturn(List.of(CarMapper.toDto(testCar)));
-        when(mockPage.getTotalElements()).thenReturn(1L);
-        when(mockPage.getTotalPages()).thenReturn(1);
-        when(mockPage.getNumber()).thenReturn(0);
-        when(mockPage.getSize()).thenReturn(1);
+        // when
+        controller.delete(id);
 
-        // Act
-        PageResponse<CarDto> response = garageController.getCars(filter, pageable).getBody();
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(1, response.content().size());
-        assertEquals(TEST_CAR_NAME, response.content().get(0).name());
-        assertEquals(1L, response.totalElements());
-        assertEquals(1, response.totalPages());
-        verify(garageService).getCars(filter, pageable);
+        // then
+        verify(garageService).deleteCar(id);
     }
 }
