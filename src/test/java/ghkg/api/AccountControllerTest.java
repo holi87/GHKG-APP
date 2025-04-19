@@ -6,6 +6,7 @@ import ghkg.domain.account.User;
 import ghkg.dto.MessageResponse;
 import ghkg.dto.account.*;
 import ghkg.security.JwtService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -46,6 +47,7 @@ class AccountControllerTest {
         ResponseEntity<LoginResponse> response = accountController.login(request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertNotNull(response.getBody());
         assertThat(response.getBody().token()).isEqualTo(token);
     }
 
@@ -72,6 +74,7 @@ class AccountControllerTest {
         ResponseEntity<CreateUserResponse> response = accountController.createUser(request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        Assertions.assertNotNull(response.getBody());
         assertThat(response.getBody().message()).contains("Created");
     }
 
@@ -98,6 +101,7 @@ class AccountControllerTest {
         ResponseEntity<CurrentUserResponse> response = accountController.getCurrentUser();
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertNotNull(response.getBody());
         assertThat(response.getBody().username()).isEqualTo("admin");
     }
 
@@ -117,6 +121,7 @@ class AccountControllerTest {
         ResponseEntity<MessageResponse> response = accountController.addRole("user", request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertNotNull(response.getBody());
         assertThat(response.getBody().message()).contains("Added role");
 
         verify(userService).addRoleToUser("user", Role.WORKER);
@@ -130,6 +135,7 @@ class AccountControllerTest {
         ResponseEntity<MessageResponse> response = accountController.updateRoles("user", request);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertNotNull(response.getBody());
         assertThat(response.getBody().message()).contains("Updated roles");
 
         verify(userService).updateUserRoles("user", newRoles);
@@ -140,6 +146,7 @@ class AccountControllerTest {
         ResponseEntity<MessageResponse> response = accountController.deleteUser("user");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertNotNull(response.getBody());
         assertThat(response.getBody().message()).contains("deleted");
 
         verify(userService).deleteUserByUsername("user");
