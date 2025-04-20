@@ -103,11 +103,11 @@ class UserServiceTest {
 
     @Test
     void shouldUpdateRolesUnlessAdminRemovedFromAdminUser() {
-        User user = User.builder().username("admin").roles(Set.of(Role.ADMIN)).build();
-        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(user));
+        User user = User.builder().username("super").roles(Set.of(Role.ADMIN)).build();
+        when(userRepository.findByUsername("super")).thenReturn(Optional.of(user));
 
         Set<Role> roles = Set.of(Role.USER);
-        assertThatThrownBy(() -> userService.updateUserRoles("admin", roles))
+        assertThatThrownBy(() -> userService.updateUserRoles("super", roles))
                 .isInstanceOf(CannotModifySuperAdminException.class);
     }
 
@@ -134,7 +134,7 @@ class UserServiceTest {
 
     @Test
     void shouldNotAllowDeletingAdmin() {
-        assertThatThrownBy(() -> userService.deleteUserByUsername("admin"))
+        assertThatThrownBy(() -> userService.deleteUserByUsername("super"))
                 .isInstanceOf(CannotModifySuperAdminException.class);
     }
 

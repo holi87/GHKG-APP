@@ -21,12 +21,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Duration;
 import java.util.List;
 
+import static ghkg.config.ApiPaths.TRIPS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WithMockUser(username = "admin_test", roles = {"ADMIN"})
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc
 @Import(SecurityConfig.class)
@@ -49,7 +51,7 @@ class TripControllerTest {
 
         Mockito.when(tripService.createTrip(any())).thenReturn(response);
 
-        mockMvc.perform(post("/trips")
+        mockMvc.perform(post(TRIPS)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -64,7 +66,7 @@ class TripControllerTest {
 
         Mockito.when(tripService.updateTrip(eq(1L), any())).thenReturn(response);
 
-        mockMvc.perform(put("/trips/1")
+        mockMvc.perform(put(TRIPS + "/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -74,7 +76,7 @@ class TripControllerTest {
     @Test
     @WithMockUser(roles = {"ADMIN"})
     void shouldDeleteTrip() throws Exception {
-        mockMvc.perform(delete("/trips/1"))
+        mockMvc.perform(delete(TRIPS + "/1"))
                 .andExpect(status().isNoContent());
     }
 
@@ -85,7 +87,7 @@ class TripControllerTest {
 
         Mockito.when(tripService.getTripById(1L)).thenReturn(response);
 
-        mockMvc.perform(get("/trips/1"))
+        mockMvc.perform(get(TRIPS + "/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Trip"));
     }
@@ -97,7 +99,7 @@ class TripControllerTest {
 
         Mockito.when(tripService.getAllTrips()).thenReturn(List.of(response));
 
-        mockMvc.perform(get("/trips"))
+        mockMvc.perform(get(TRIPS))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Trip"));
     }

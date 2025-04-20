@@ -1,6 +1,7 @@
 package ghkg.application;
 
 import ghkg.api.exception.CannotModifySuperAdminException;
+import ghkg.api.exception.UsernameNotFoundException;
 import ghkg.application.validation.PasswordValidationService;
 import ghkg.domain.account.Role;
 import ghkg.domain.account.User;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
 
+    private final static String SUPER_ADMIN_USERNAME = "super";
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final PasswordValidationService passwordValidationService;
@@ -93,8 +94,8 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        if ("admin".equalsIgnoreCase(user.getUsername()) && !newRoles.contains(Role.ADMIN)) {
-            throw new CannotModifySuperAdminException("Cannot remove ADMIN role from the 'admin' user.");
+        if (SUPER_ADMIN_USERNAME.equalsIgnoreCase(user.getUsername()) && !newRoles.contains(Role.ADMIN)) {
+            throw new CannotModifySuperAdminException("Cannot remove ADMIN role from the 'super admin' user.");
         }
 
         user.setRoles(newRoles);
@@ -103,10 +104,10 @@ public class UserService {
 
     @Transactional
     public void deleteUserByUsername(String username) {
-        if ("admin".equalsIgnoreCase(username)) {
-            throw new CannotModifySuperAdminException("Cannot delete the 'admin' user.");
+        if (SUPER_ADMIN_USERNAME.equalsIgnoreCase(username)) {
+            throw new CannotModifySuperAdminException("Cannot delete the 'super admin' user.");
         }
-
+        log.info("Deleting user: {}", username);
         userRepository.findByUsername(username)
                 .ifPresentOrElse(
                         userRepository::delete,
