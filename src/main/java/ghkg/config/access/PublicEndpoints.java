@@ -23,7 +23,7 @@ public class PublicEndpoints {
                 // Frontend routes and static resources
                 "/",
                 "/index",
-                "/me.html",
+                "/me",
                 "/login",
                 "/admin",
                 "/garage",

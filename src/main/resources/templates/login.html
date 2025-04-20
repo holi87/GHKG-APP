@@ -45,7 +45,7 @@
                 localStorage.setItem("token", data.token);
                 console.log("Zapisany token:", data.token);
                 document.getElementById("loginMessage").textContent = "Login successful!";
-                window.location.href = "/me.html";
+                window.location.href = "/me";
             })
             .catch(err => {
                 document.getElementById("loginMessage").textContent = err.message;

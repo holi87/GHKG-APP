@@ -12,40 +12,41 @@
 <div id="userInfo"></div>
 
 <script>
-    console.log("me.html JS loaded!");
-
+    const userInfoDiv = document.getElementById("userInfo");
     const token = localStorage.getItem("token");
-    console.log("Token from storage:", token);
+
+    console.log("Loaded token:", token);
 
     if (!token) {
-        document.getElementById("userInfo").textContent = "Not authenticated.";
+        userInfoDiv.innerHTML = `<p style="color:red;">You are not authenticated. Please <a href="/login">login</a>.</p>`;
     } else {
-        fetch("/me", {
+        fetch("/api/me", {
             method: "GET",
             headers: {
                 "Authorization": "Bearer " + token
             }
         })
             .then(res => {
-                console.log("Response from /me:", res);
                 if (!res.ok) {
-                    throw new Error("Unauthorized");
+                    if (res.status === 403 || res.status === 401) {
+                        throw new Error("Access denied. Please log in again.");
+                    }
+                    throw new Error("Failed to fetch user info.");
                 }
                 return res.json();
             })
             .then(data => {
-                console.log("User data:", data);
-                document.getElementById("userInfo").innerHTML =
-                    `<p><strong>Username:</strong> ${data.username}</p>
-                     <p><strong>Roles:</strong> ${data.roles.join(', ')}</p>`;
+                userInfoDiv.innerHTML = `
+                <p><strong>Username:</strong> ${data.username}</p>
+                <p><strong>Roles:</strong> ${data.roles.join(', ')}</p>
+            `;
             })
             .catch(err => {
                 console.error("Fetch error:", err);
-                document.getElementById("userInfo").textContent = err.message;
+                userInfoDiv.innerHTML = `<p style="color:red;">${err.message}</p>`;
             });
     }
 </script>
-
 
 </body>
 </html>
