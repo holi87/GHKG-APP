@@ -1,4 +1,4 @@
-package ghkg.api.exception;
+package ghkg.api;
 
 import ghkg.config.ApiPaths;
 import ghkg.dto.MessageResponse;

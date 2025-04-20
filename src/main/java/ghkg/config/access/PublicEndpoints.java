@@ -23,10 +23,15 @@ public class PublicEndpoints {
                 // Frontend routes and static resources
                 "/",
                 "/index",
+                "/me.html",
                 "/login",
+                "/admin",
+                "/garage",
+                "/trips",
                 "/css/**",
                 "/js/**",
                 "/images/**",
+                "/favicon.ico",
                 "/webjars/**"
         ).permitAll();
     }

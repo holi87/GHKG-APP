@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>User Info</title>
+</head>
+<body>
+
+<h1>User Info</h1>
+<a href="/">← Back to Home</a>
+
+<div id="userInfo"></div>
+
+<script>
+    console.log("me.html JS loaded!");
+
+    const token = localStorage.getItem("token");
+    console.log("Token from storage:", token);
+
+    if (!token) {
+        document.getElementById("userInfo").textContent = "Not authenticated.";
+    } else {
+        fetch("/me", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        })
+            .then(res => {
+                console.log("Response from /me:", res);
+                if (!res.ok) {
+                    throw new Error("Unauthorized");
+                }
+                return res.json();
+            })
+            .then(data => {
+                console.log("User data:", data);
+                document.getElementById("userInfo").innerHTML =
+                    `<p><strong>Username:</strong> ${data.username}</p>
+                     <p><strong>Roles:</strong> ${data.roles.join(', ')}</p>`;
+            })
+            .catch(err => {
+                console.error("Fetch error:", err);
+                document.getElementById("userInfo").textContent = err.message;
+            });
+    }
+</script>
+
+
+</body>
+</html>
