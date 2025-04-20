@@ -21,7 +21,9 @@ public class HomeController {
         String actuatorInfoUrl = apiUrlConfig.getApiUrl() + "/actuator/info";
         @SuppressWarnings("unchecked")
         Map<String, Object> info = restTemplate.getForObject(actuatorInfoUrl, Map.class);
-        model.addAttribute("version", info != null ? info.get("build") : "N/A");
+        @SuppressWarnings("unchecked")
+        Object version = ((Map<String, Object>) info.get("build")).get("version");
+        model.addAttribute("version", version != null ? version : "N/A");
         return "index";
     }
 }

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+</head>
+<body>
+
+<h1>Admin Panel</h1>
+<a href="/">← Back to Home</a>
+
+<div id="adminActions">
+    <p>Here you can:</p>
+    <ul>
+        <li>Reset password for a user</li>
+        <li>Assign or remove roles</li>
+        <li>Delete users</li>
+    </ul>
+</div>
+
+<hr>
+<h2>System Info</h2>
+<pre id="systemInfo">Loading...</pre>
+
+<script>
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        document.getElementById("systemInfo").textContent = "Not authenticated.";
+    } else {
+        fetch("/actuator/info", {
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("Access Denied");
+                return res.json();
+            })
+            .then(data => {
+                document.getElementById("systemInfo").textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(err => {
+                document.getElementById("systemInfo").textContent = err.message;
+            });
+    }
+</script>
+
+</body>
+</html>
