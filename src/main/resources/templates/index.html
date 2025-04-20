@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>GHKG - Home</title>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+<h1>Welcome to GHKG App</h1>
+
+<ul>
+    <li><a href="/login">Login</a></li>
+    <li><a href="/user">User Panel</a></li>
+    <li><a href="/admin">Admin Panel</a></li>
+    <li><a href="/garage">Garage</a></li>
+    <li><a href="/trips">Trips</a></li>
+</ul>
+
+<hr>
+<div>
+    <strong>Build Info:</strong>
+    <span th:text="${version} ?: 'No info'"></span>
+</div>
+
+</body>
+</html>
