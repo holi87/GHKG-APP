@@ -21,9 +21,11 @@ public class Car {
     @Column(nullable = false)
     private String name;
 
+    @Column(name = "engine_capacity")
     private int engineCapacity;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "fuel_type")
     private FuelType fuelType;
 
 

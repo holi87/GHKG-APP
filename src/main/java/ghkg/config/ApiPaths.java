@@ -7,4 +7,5 @@ public class ApiPaths {
     public static final String TRIPS = ROOT + "/trips";
     public static final String CARS = ROOT + "/cars";
     public static final String VERSION = ROOT + "/version";
+    public static final String ENUMS = ROOT + "/enums";
 }

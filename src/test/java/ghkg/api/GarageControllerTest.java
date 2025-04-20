@@ -7,7 +7,7 @@ import ghkg.dto.car.CarDto;
 import ghkg.dto.car.CarFilterDto;
 import ghkg.dto.car.CreateCarDto;
 import ghkg.dto.car.UpdateCarDto;
-import ghkg.mapper.CarMapper;
+import ghkg.infrastructure.mapper.CarMapper;
 import ghkg.services.GarageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

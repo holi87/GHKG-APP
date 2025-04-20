@@ -6,12 +6,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Slf4j
 @Controller
-public class AdminController {
+public class GaragePageController {
 
-    @GetMapping("/admin")
+    @GetMapping("/garage")
     public String adminPage() {
-        log.info("Admin page requested");
-        System.out.println("LALALALALALALALLA");
-        return "admin";
+        return "garage";
     }
 }

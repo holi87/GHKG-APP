@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
-public class HomeController {
+public class HomePageController {
 
     private final RestTemplate restTemplate;
     private final ApiUrlConfig apiUrlConfig;

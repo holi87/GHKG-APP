@@ -18,6 +18,7 @@ public class PublicEndpoints {
                 // Public API endpoints
                 ApiPaths.VERSION,
                 ApiPaths.ROOT + "/login",
+                ApiPaths.ENUMS + "/**",
                 ApiPaths.CARS + "/**",
 
                 // Frontend routes and static resources
