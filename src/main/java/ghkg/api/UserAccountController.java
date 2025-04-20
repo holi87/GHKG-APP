@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(ApiPaths.ROOT)
 @RequiredArgsConstructor
-public class PublicAccountController {
+public class UserAccountController {
 
     private final UserService userService;
     private final JwtService jwtService;

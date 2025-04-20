@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc
 @Import(SecurityConfig.class)
-class PublicAccountControllerTest {
+class UserAccountControllerTest {
 
     @MockitoBean
     private UserService userService;
