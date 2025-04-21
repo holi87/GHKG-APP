@@ -1,52 +1,52 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en-GB"
+      layout:decorate="~{base}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
 <head>
-    <meta charset="UTF-8">
-    <title>User Info</title>
+    <title layout:fragment="title">User Info</title>
 </head>
+
 <body>
+<main layout:fragment="content">
+    <h1 class="mb-4">User Info</h1>
+    <a href="/">← Back to Home</a>
 
-<h1>User Info</h1>
-<a href="/">← Back to Home</a>
+    <div class="mt-3" id="userInfo"></div>
 
-<div id="userInfo"></div>
+    <script>
+        const userInfoDiv = document.getElementById("userInfo");
+        const token = localStorage.getItem("token");
 
-<script>
-    const userInfoDiv = document.getElementById("userInfo");
-    const token = localStorage.getItem("token");
-
-    console.log("Loaded token:", token);
-
-    if (!token) {
-        userInfoDiv.innerHTML = `<p style="color:red;">You are not authenticated. Please <a href="/login">login</a>.</p>`;
-    } else {
-        fetch("/api/me", {
-            method: "GET",
-            headers: {
-                "Authorization": "Bearer " + token
-            }
-        })
-            .then(res => {
-                if (!res.ok) {
-                    if (res.status === 403 || res.status === 401) {
-                        throw new Error("Access denied. Please log in again.");
-                    }
-                    throw new Error("Failed to fetch user info.");
+        if (!token) {
+            userInfoDiv.innerHTML = `<div class="alert alert-danger">You are not authenticated. Please <a href="/login">login</a>.</div>`;
+        } else {
+            fetch("/api/me", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token
                 }
-                return res.json();
             })
-            .then(data => {
-                userInfoDiv.innerHTML = `
-                <p><strong>Username:</strong> ${data.username}</p>
-                <p><strong>Roles:</strong> ${data.roles.join(', ')}</p>
-            `;
-            })
-            .catch(err => {
-                console.error("Fetch error:", err);
-                userInfoDiv.innerHTML = `<p style="color:red;">${err.message}</p>`;
-            });
-    }
-</script>
-
+                .then(res => {
+                    if (!res.ok) {
+                        if (res.status === 403 || res.status === 401) {
+                            throw new Error("Access denied. Please log in again.");
+                        }
+                        throw new Error("Failed to fetch user info.");
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    userInfoDiv.innerHTML = `
+                        <p><strong>Username:</strong> ${data.username}</p>
+                        <p><strong>Roles:</strong> ${data.roles.join(', ')}</p>
+                    `;
+                })
+                .catch(err => {
+                    userInfoDiv.innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+                });
+        }
+    </script>
+</main>
 </body>
 </html>

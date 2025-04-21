@@ -1,57 +1,63 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en-GB"
+      layout:decorate="~{base}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Login</title>
+    <title layout:fragment="title">Login</title>
 </head>
+
 <body>
+<main layout:fragment="content">
+    <h1 class="mb-4">Login</h1>
+    <a href="/">← Back to Home</a>
 
-<h1>Login</h1>
-<a href="/">← Back to Home</a>
-<form id="loginForm">
-    <label for="username">Username:</label>
-    <input id="username" name="username" required type="text"/><br/>
+    <form class="mt-3" id="loginForm">
+        <div class="mb-3">
+            <label class="form-label" for="username">Username:</label>
+            <input class="form-control" id="username" name="username" required type="text"/>
+        </div>
 
-    <label for="password">Password:</label>
-    <input id="password" name="password" required type="password"/><br/>
+        <div class="mb-3">
+            <label class="form-label" for="password">Password:</label>
+            <input class="form-control" id="password" name="password" required type="password"/>
+        </div>
 
-    <button type="submit">Login</button>
-</form>
+        <button class="btn btn-primary" type="submit">Login</button>
+    </form>
 
-<div id="loginMessage"></div>
+    <div class="mt-3 text-danger" id="loginMessage"></div>
 
-<script>
-    document.getElementById("loginForm").addEventListener("submit", function (e) {
-        e.preventDefault();
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", function (e) {
+            e.preventDefault();
 
-        const payload = {
-            username: document.getElementById("username").value,
-            password: document.getElementById("password").value
-        };
+            const payload = {
+                username: document.getElementById("username").value,
+                password: document.getElementById("password").value
+            };
 
-        fetch("/api/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        })
-            .then(response => {
-                if (response.ok) return response.json();
-                throw new Error("Login failed");
+            fetch("/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
             })
-            .then(data => {
-                console.log("Dane z serwera:", data);
-                localStorage.setItem("token", data.token);
-                console.log("Zapisany token:", data.token);
-                document.getElementById("loginMessage").textContent = "Login successful!";
-                window.location.href = "/me";
-            })
-            .catch(err => {
-                document.getElementById("loginMessage").textContent = err.message;
-            });
-    });
-</script>
-
+                .then(response => {
+                    if (response.ok) return response.json();
+                    throw new Error("Login failed");
+                })
+                .then(data => {
+                    localStorage.setItem("token", data.token);
+                    document.getElementById("loginMessage").textContent = "Login successful!";
+                    window.location.href = "/me";
+                })
+                .catch(err => {
+                    document.getElementById("loginMessage").textContent = err.message;
+                });
+        });
+    </script>
+</main>
 </body>
 </html>

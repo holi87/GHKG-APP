@@ -158,8 +158,8 @@
                 </executions>
                 <configuration>
                     <additionalProperties>
-                        <build.version>${project.version}</build.version>
-                        <build.name>${project.name}</build.name>
+                        <version>${project.version}</version>
+                        <name>${project.name}</name>
                     </additionalProperties>
                 </configuration>
             </plugin>
