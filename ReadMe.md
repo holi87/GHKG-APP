@@ -1,4 +1,4 @@
-# 🚗 GHKG-API — running on Docker
+# 🚗 GHKG-APP — running on Docker
 
 ## ✅ Requirements
 
@@ -18,7 +18,7 @@ docker pull gholak87/ghkg-app:latest
 docker run \
   -e SERVER_PORT=8080 \
   -e SERVER_ADDRESS=0.0.0.0 \
-  -p 8081:8080 \
+  -p 8080:8080 \
   gholak87/ghkg-api:latest
 ```
 
