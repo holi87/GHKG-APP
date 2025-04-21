@@ -1,32 +1,48 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html th:replace="~{base :: layout (~{::title}, ~{::section})}"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
     <title>Garage</title>
 </head>
-<body>
-<h1>Garage</h1>
-<a href="/">← Back to Home</a>
 
-<h2>Cars</h2>
-<ul id="carList"></ul>
+<section>
+    <h1 class="mb-4">Garage</h1>
 
-<h2>Add / Edit Car</h2>
-<form id="carForm">
-    <input id="carId" type="hidden"/>
-    <label for="name">Name:</label>
-    <input id="name" required type="text"/><br/>
+    <div class="text-danger" id="message"></div>
 
-    <label for="fuelType">Fuel Type:</label>
-    <select id="fuelType" required></select><br/>
+    <!-- Car list -->
+    <div class="card mb-4">
+        <div class="card-header">Your Cars</div>
+        <ul class="list-group list-group-flush" id="carList"></ul>
+    </div>
 
-    <label for="engineCapacity">Engine Capacity (cc):</label>
-    <input id="engineCapacity" min="0" required type="number"/><br/>
+    <!-- Car form -->
+    <div class="card">
+        <div class="card-header">Add / Edit Car</div>
+        <div class="card-body">
+            <form id="carForm">
+                <input id="carId" type="hidden"/>
 
-    <button type="submit">Save</button>
-</form>
+                <div class="mb-3">
+                    <label class="form-label" for="name">Name:</label>
+                    <input class="form-control" id="name" required type="text"/>
+                </div>
 
-<div id="message"></div>
+                <div class="mb-3">
+                    <label class="form-label" for="fuelType">Fuel Type:</label>
+                    <select class="form-select" id="fuelType" required></select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="engineCapacity">Engine Capacity (cc):</label>
+                    <input class="form-control" id="engineCapacity" min="0" required type="number"/>
+                </div>
+
+                <button class="btn btn-primary" type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+</section>
 
 <script>
     const token = localStorage.getItem("token");
@@ -73,14 +89,21 @@
 
                 if (cars.length === 0) {
                     const li = document.createElement("li");
+                    li.className = "list-group-item";
                     li.textContent = "No cars available.";
                     carList.appendChild(li);
                 } else {
                     cars.forEach(car => {
                         const li = document.createElement("li");
-                        li.innerHTML = `${car.name} (${car.fuelType}, ${car.engineCapacity}cc)
-                <button onclick="editCar('${car.id}')">Edit</button>
-                <button onclick="deleteCar('${car.id}')">Delete</button>`;
+                        li.className = "list-group-item d-flex justify-content-between align-items-center";
+                        li.innerHTML = `
+                            <div>
+                                <strong>${car.name}</strong> (${car.fuelType}, ${car.engineCapacity}cc)
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary me-2" onclick="editCar('${car.id}')">Edit</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteCar('${car.id}')">Delete</button>
+                            </div>`;
                         carList.appendChild(li);
                     });
                 }
@@ -164,6 +187,3 @@
     loadFuelTypes();
     loadCars();
 </script>
-
-</body>
-</html>
