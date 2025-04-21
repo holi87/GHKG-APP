@@ -8,6 +8,7 @@ import ghkg.services.TripService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class TripController {
     @PreAuthorize("hasAnyRole('WORKER', 'ADMIN')")
     @PostMapping
     public ResponseEntity<TripResponse> createTrip(@Valid @RequestBody CreateTripRequest request) {
-        return ResponseEntity.status(201).body(tripService.createTrip(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(tripService.createTrip(request));
     }
 
     @PreAuthorize("hasAnyRole('WORKER', 'ADMIN')")
@@ -48,6 +49,7 @@ public class TripController {
     }
 
     @PreAuthorize("hasRole('USER')")
+    // it is for purpose, testers should find it and create an issue in youtrack to fix that
     @GetMapping("/{id}")
     public ResponseEntity<TripResponse> getTripById(@PathVariable Long id) {
         return ResponseEntity.ok(tripService.getTripById(id));

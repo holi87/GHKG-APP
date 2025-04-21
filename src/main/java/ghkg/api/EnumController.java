@@ -3,6 +3,7 @@ package ghkg.api;
 
 import ghkg.config.ApiPaths;
 import ghkg.domain.car.FuelType;
+import ghkg.domain.trips.TripType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -26,4 +27,15 @@ public class EnumController {
                 .toList();
         return ResponseEntity.ok(fuelTypes);
     }
+
+    @Operation(summary = "List of all available TripType values", tags = {"Enums"})
+    @GetMapping("/trip-types")
+    public ResponseEntity<List<String>> getTripTypes() {
+        List<String> tripTypes = Arrays.stream(TripType.values())
+                .map(Enum::name)
+                .toList();
+        return ResponseEntity.ok(tripTypes);
+    }
+
+
 }

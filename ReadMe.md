@@ -30,10 +30,10 @@ server:
   address: ${SERVER_ADDRESS:localhost}
 ```
 
-## 🐳 Step 3: run swagger
+## 🐳 Step 3: webapp
 
 ```bash 
-http://localhost:8081/swagger-ui/index.html
+http://localhost:8080
 ```
 
 ## 🐳 Step 4: basic admin credentials
