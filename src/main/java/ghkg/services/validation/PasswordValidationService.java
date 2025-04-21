@@ -1,4 +1,4 @@
-package ghkg.application.validation;
+package ghkg.services.validation;
 
 import ghkg.api.exception.PasswordChangeException;
 import ghkg.domain.account.User;

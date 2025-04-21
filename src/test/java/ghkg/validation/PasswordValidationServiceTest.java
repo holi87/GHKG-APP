@@ -1,7 +1,8 @@
-package ghkg.application.validation;
+package ghkg.validation;
 
 import ghkg.api.exception.PasswordChangeException;
 import ghkg.domain.account.User;
+import ghkg.services.validation.PasswordValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.password.PasswordEncoder;

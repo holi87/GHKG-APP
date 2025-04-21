@@ -1,4 +1,4 @@
-package ghkg.mapper;
+package ghkg.infrastructure.mapper;
 
 import ghkg.dto.PageResponse;
 import org.springframework.data.domain.Page;

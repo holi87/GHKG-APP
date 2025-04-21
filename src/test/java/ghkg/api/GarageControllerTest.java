@@ -1,13 +1,14 @@
 package ghkg.api;
 
-import ghkg.application.GarageService;
 import ghkg.domain.car.Car;
+import ghkg.domain.car.FuelType;
 import ghkg.dto.PageResponse;
 import ghkg.dto.car.CarDto;
 import ghkg.dto.car.CarFilterDto;
 import ghkg.dto.car.CreateCarDto;
 import ghkg.dto.car.UpdateCarDto;
-import ghkg.mapper.CarMapper;
+import ghkg.infrastructure.mapper.CarMapper;
+import ghkg.services.GarageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -39,7 +40,7 @@ class GarageControllerTest {
         Long id = UUID.randomUUID().getMostSignificantBits();
         CarFilterDto filter = new CarFilterDto("Tesla", null, null, null);
         Pageable pageable = PageRequest.of(0, 10);
-        CarDto carDto = new CarDto(id, "Tesla", ghkg.domain.car.FuelType.ELECTRIC, 0);
+        CarDto carDto = new CarDto(id, "Tesla", FuelType.ELECTRIC, 0);
         Page<CarDto> page = new PageImpl<>(List.of(carDto));
 
         when(garageService.getCars(filter, pageable)).thenReturn(page);
@@ -57,7 +58,7 @@ class GarageControllerTest {
     void shouldGetCarById() {
         // given
         Long id = UUID.randomUUID().getMostSignificantBits();
-        Car car = Car.builder().id(id).name("Car").fuelType(ghkg.domain.car.FuelType.GASOLINE).engineCapacity(1000).build();
+        Car car = Car.builder().id(id).name("Car").fuelType(FuelType.GASOLINE).engineCapacity(1000).build();
 
         when(garageService.getCarById(id)).thenReturn(car);
 
@@ -73,8 +74,8 @@ class GarageControllerTest {
     void shouldAddNewCar() {
         // given
         Long id = UUID.randomUUID().getMostSignificantBits();
-        CreateCarDto createDto = new CreateCarDto("NewCar", ghkg.domain.car.FuelType.DIESEL, 1600);
-        Car saved = Car.builder().id(id).name("NewCar").fuelType(ghkg.domain.car.FuelType.DIESEL).engineCapacity(1600).build();
+        CreateCarDto createDto = new CreateCarDto("NewCar", FuelType.DIESEL, 1600);
+        Car saved = Car.builder().id(id).name("NewCar").fuelType(FuelType.DIESEL).engineCapacity(1600).build();
 
         when(garageService.addCar(any(Car.class))).thenReturn(saved);
 
@@ -90,7 +91,7 @@ class GarageControllerTest {
     void shouldUpdateCar() {
         // given
         Long id = UUID.randomUUID().getMostSignificantBits();
-        UpdateCarDto dto = new UpdateCarDto(id, "Updated", ghkg.domain.car.FuelType.GASOLINE, 1200);
+        UpdateCarDto dto = new UpdateCarDto(id, "Updated", FuelType.GASOLINE, 1200);
         Car updatedCar = CarMapper.fromUpdateDto(dto);
 
         when(garageService.updateCar(eq(id), any(Car.class))).thenReturn(updatedCar);

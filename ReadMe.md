@@ -15,13 +15,25 @@ docker pull gholak87/ghkg-api:latest
 ## 🐳 Step 2: run container
 
 ```bash
-docker run -p 8081:8080 <twoj_user>/ghkg-api:latest
+docker run \
+  -e SERVER_PORT=8080 \
+  -e SERVER_ADDRESS=0.0.0.0 \
+  -p 8081:8080 \
+  gholak87/ghkg-api:latest
 ```
 
-## 🐳 Step 3: run swagger
+The application uses these default values (defined in application.yaml):
+
+```yaml
+server:
+  port: ${SERVER_PORT:8080}
+  address: ${SERVER_ADDRESS:localhost}
+```
+
+## 🐳 Step 3: webapp
 
 ```bash 
-http://localhost:8081/swagger-ui/index.html
+http://localhost:8080
 ```
 
 ## 🐳 Step 4: basic admin credentials

@@ -1,8 +1,9 @@
-package ghkg.application.validation;
+package ghkg.validation;
 
 import ghkg.api.exception.InvalidCarDataException;
 import ghkg.domain.car.Car;
 import ghkg.domain.car.FuelType;
+import ghkg.services.validation.CarValidator;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

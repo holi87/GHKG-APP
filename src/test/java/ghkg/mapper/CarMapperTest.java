@@ -3,6 +3,7 @@ package ghkg.mapper;
 import ghkg.domain.car.Car;
 import ghkg.domain.car.FuelType;
 import ghkg.dto.car.CreateCarDto;
+import ghkg.infrastructure.mapper.CarMapper;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

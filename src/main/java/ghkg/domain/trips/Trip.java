@@ -1,5 +1,6 @@
 package ghkg.domain.trips;
 
+import ghkg.infrastructure.converter.DurationConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -35,6 +36,8 @@ public class Trip {
     private double distance;
 
     @PositiveOrZero
+    @Column(name = "duration")
+    @Convert(converter = DurationConverter.class)
     private Duration duration;
 
     @Min(0)

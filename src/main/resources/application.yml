@@ -1,5 +1,6 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
+  address: ${SERVER_ADDRESS:localhost}
 
 spring:
   datasource:
@@ -19,6 +20,12 @@ spring:
     console:
       enabled: true
       path: /h2-console
+
+  thymeleaf:
+    enabled: true
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
 
 management:
   endpoints:

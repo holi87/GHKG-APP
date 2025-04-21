@@ -1,4 +1,4 @@
-package ghkg.application;
+package ghkg.services;
 
 import ghkg.api.exception.CarNotFoundException;
 import ghkg.domain.car.Car;

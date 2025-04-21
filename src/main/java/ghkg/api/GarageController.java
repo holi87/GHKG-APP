@@ -1,7 +1,6 @@
 package ghkg.api;
 
 import ghkg.api.exception.InvalidCarDataException;
-import ghkg.application.GarageService;
 import ghkg.config.ApiPaths;
 import ghkg.domain.car.Car;
 import ghkg.dto.PageResponse;
@@ -9,7 +8,8 @@ import ghkg.dto.car.CarDto;
 import ghkg.dto.car.CarFilterDto;
 import ghkg.dto.car.CreateCarDto;
 import ghkg.dto.car.UpdateCarDto;
-import ghkg.mapper.CarMapper;
+import ghkg.infrastructure.mapper.CarMapper;
+import ghkg.services.GarageService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

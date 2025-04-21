@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+
+<h1>Login</h1>
+<a href="/">← Back to Home</a>
+<form id="loginForm">
+    <label for="username">Username:</label>
+    <input id="username" name="username" required type="text"/><br/>
+
+    <label for="password">Password:</label>
+    <input id="password" name="password" required type="password"/><br/>
+
+    <button type="submit">Login</button>
+</form>
+
+<div id="loginMessage"></div>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const payload = {
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value
+        };
+
+        fetch("/api/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(response => {
+                if (response.ok) return response.json();
+                throw new Error("Login failed");
+            })
+            .then(data => {
+                console.log("Dane z serwera:", data);
+                localStorage.setItem("token", data.token);
+                console.log("Zapisany token:", data.token);
+                document.getElementById("loginMessage").textContent = "Login successful!";
+                window.location.href = "/me";
+            })
+            .catch(err => {
+                document.getElementById("loginMessage").textContent = err.message;
+            });
+    });
+</script>
+
+</body>
+</html>

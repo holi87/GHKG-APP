@@ -1,4 +1,4 @@
-package ghkg.mapper;
+package ghkg.infrastructure.mapper;
 
 import ghkg.domain.car.Car;
 import ghkg.dto.car.CarDto;

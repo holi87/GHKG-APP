@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en-GB" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>GHKG - Home</title>
+    <meta charset="UTF-8"/>
+</head>
+<body>
+<h1>Welcome to GHKG App</h1>
+
+<ul>
+    <li id="loginLink"><a href="/login">Login Page</a></li>
+    <li id="meLink" style="display: none;"><a href="/me">User Info</a></li>
+    <li id="adminLink" style="display: none;"><a href="/admin">Admin Panel</a></li>
+    <li><a href="/garage">Garage</a></li>
+    <li><a href="/trips">Trips</a></li>
+    <li><a href="/swagger-ui/index.html" target="_blank">Swagger UI</a></li>
+</ul>
+
+<div id="authActions" style="margin-top: 10px;"></div>
+
+<hr>
+<p>Version: <span th:text="${version}">unknown</span></p>
+
+<script>
+    const token = localStorage.getItem("token");
+
+    if (token) {
+        document.getElementById("meLink").style.display = "list-item";
+        document.getElementById("loginLink").style.display = "none";
+
+        const authActions = document.getElementById("authActions");
+        const logoutBtn = document.createElement("button");
+        logoutBtn.textContent = "Logout";
+        logoutBtn.onclick = function () {
+            localStorage.removeItem("token");
+            window.location.href = "/";
+        };
+        authActions.appendChild(logoutBtn);
+
+        fetch("/api/me", {
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    console.warn("Token seems invalid or expired.");
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+
+                const roles = data.roles || [];
+                if (roles.includes("ADMIN")) {
+                    document.getElementById("adminLink").style.display = "list-item";
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching user info:", err);
+            });
+    }
+</script>
+
+
+</body>
+</html>

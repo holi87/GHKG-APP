@@ -1,14 +1,14 @@
 package ghkg.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ghkg.application.UserService;
-import ghkg.application.validation.PasswordValidationService;
 import ghkg.config.SecurityConfig;
 import ghkg.domain.account.Role;
 import ghkg.domain.account.User;
 import ghkg.dto.account.*;
 import ghkg.infrastructure.repository.UserRepository;
 import ghkg.security.JwtService;
+import ghkg.services.UserService;
+import ghkg.services.validation.PasswordValidationService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static ghkg.config.ApiPaths.ADMIN_USERS;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = "spring.sql.init.mode=never")
 @AutoConfigureMockMvc
 @Import(SecurityConfig.class)
-class AccountControllerTest {
+class AdminAccountControllerTest {
 
     @MockitoBean
     private UserService userService;
@@ -60,38 +60,6 @@ class AccountControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void shouldLoginSuccessfully() throws Exception {
-        LoginRequest request = new LoginRequest("user", "pass");
-        User mockUser = new User();
-        mockUser.setUsername("user");
-
-        Mockito.when(userService.validateUser(eq("user"), eq("pass")))
-                .thenReturn(Optional.of(mockUser));
-
-
-        Mockito.when(jwtService.generateToken(eq("user"))).thenReturn("token");
-
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("token"));
-    }
-
-    @Test
-    void shouldReturnUnauthorizedWhenLoginFails() throws Exception {
-        LoginRequest request = new LoginRequest("user", "wrongpass");
-
-        Mockito.when(userService.validateUser(eq("user"), eq("wrongpass")))
-                .thenReturn(Optional.empty());
-
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
     void shouldCreateUser() throws Exception {
         CreateUserRequest request = new CreateUserRequest("newuser", "password", Set.of(Role.USER));
 
@@ -99,7 +67,7 @@ class AccountControllerTest {
 
         Mockito.when(userService.createUser(any(), any(), any())).thenReturn(response);
 
-        mockMvc.perform(post("/admin/users")
+        mockMvc.perform(post(ADMIN_USERS)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -108,19 +76,19 @@ class AccountControllerTest {
 
     @Test
     void shouldGetAllUsers() throws Exception {
-        UserSummaryResponse user1 = new UserSummaryResponse("admin", Set.of("ADMIN"));
+        UserSummaryResponse user1 = new UserSummaryResponse("admin_test", Set.of("ADMIN"));
         Mockito.when(userService.getAllUsers()).thenReturn(List.of(user1));
 
-        mockMvc.perform(get("/admin/users"))
+        mockMvc.perform(get(ADMIN_USERS))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].username").value("admin"));
+                .andExpect(jsonPath("$[0].username").value("admin_test"));
     }
 
     @Test
     void shouldAddRoleToUser() throws Exception {
         AddRoleRequest request = new AddRoleRequest(Role.WORKER);
 
-        mockMvc.perform(patch("/admin/users/user123/roles")
+        mockMvc.perform(patch(ADMIN_USERS + "/user123/roles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -131,7 +99,7 @@ class AccountControllerTest {
     void shouldUpdateUserRoles() throws Exception {
         UpdateRolesRequest request = new UpdateRolesRequest(Set.of(Role.USER, Role.WORKER));
 
-        mockMvc.perform(put("/admin/users/user123/roles")
+        mockMvc.perform(put(ADMIN_USERS + "/user123/roles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -140,28 +108,22 @@ class AccountControllerTest {
 
     @Test
     void shouldDeleteUser() throws Exception {
-        mockMvc.perform(delete("/admin/users/user123"))
+        User user = new User();
+        user.setUsername("user123");
+
+        Mockito.when(userRepository.findByUsername("user123"))
+                .thenReturn(Optional.of(user));
+
+        mockMvc.perform(delete(ADMIN_USERS + "/user123"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("User 'user123' deleted successfully")));
-    }
-
-    @WithMockUser(username = "user", roles = {"USER"})
-    @Test
-    void shouldChangePasswordForSelf() throws Exception {
-        ChangeOwnPasswordRequest request = new ChangeOwnPasswordRequest("oldPass", "newPass");
-
-        mockMvc.perform(patch("/me/password")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Password changed. Please login again."));
     }
 
     @Test
     void shouldAdminResetPassword() throws Exception {
         ResetPasswordRequest request = new ResetPasswordRequest("newSecurePassword");
 
-        mockMvc.perform(patch("/admin/users/admin/password")
+        mockMvc.perform(patch(ADMIN_USERS + "/admin/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

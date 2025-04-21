@@ -1,7 +1,7 @@
 package ghkg.api;
 
 import ghkg.dto.PageResponse;
-import ghkg.mapper.PageMapper;
+import ghkg.infrastructure.mapper.PageMapper;
 import org.springframework.data.domain.Page;
 
 public abstract class BaseController {
