@@ -1,63 +1,93 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html th:replace="~{base :: layout (~{::title}, ~{::section})}"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
     <title>Admin Panel</title>
 </head>
-<body>
 
-<h1>Admin Panel</h1>
-<a href="/">← Back to Home</a>
-<hr/>
+<section>
+    <h1 class="mb-4">Admin Panel</h1>
 
-<!-- Reset Password -->
-<h2>Reset User Password</h2>
-<form id="resetPasswordForm">
-    <label>Username: <input id="resetUsername" required type="text"></label><br/>
-    <label>New Password: <input id="resetNewPassword" required type="password"></label><br/>
-    <button type="submit">Reset Password</button>
-</form>
-<div id="resetPasswordMessage"></div>
+    <!-- Reset Password -->
+    <div class="card mb-4">
+        <div class="card-header">Reset User Password</div>
+        <div class="card-body">
+            <form id="resetPasswordForm">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input class="form-control" id="resetUsername" required type="text">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">New Password</label>
+                    <input class="form-control" id="resetNewPassword" required type="password">
+                </div>
+                <button class="btn btn-warning" type="submit">Reset Password</button>
+            </form>
+            <div class="mt-2 text-success" id="resetPasswordMessage"></div>
+        </div>
+    </div>
 
-<hr/>
+    <!-- Manage Roles -->
+    <div class="card mb-4">
+        <div class="card-header">Manage User Roles</div>
+        <div class="card-body">
+            <form class="mb-3" id="addRoleForm">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input class="form-control" id="addRoleUsername" required type="text">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Role</label>
+                    <select class="form-select" id="addRole">
+                        <option value="USER">USER</option>
+                        <option value="WORKER">WORKER</option>
+                        <option value="ADMIN">ADMIN</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" type="submit">Add Role</button>
+            </form>
 
-<!-- Role Management -->
-<h2>Manage User Roles</h2>
-<form id="addRoleForm">
-    <label>Username: <input id="addRoleUsername" required type="text"></label><br/>
-    <label>Role:
-        <select id="addRole">
-            <option value="USER">USER</option>
-            <option value="WORKER">WORKER</option>
-            <option value="ADMIN">ADMIN</option>
-        </select>
-    </label><br/>
-    <button type="submit">Add Role</button>
-</form>
+            <form id="setRolesForm">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input class="form-control" id="setRolesUsername" required type="text">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Roles (comma separated)</label>
+                    <input class="form-control" id="setRoles" placeholder="e.g. USER,ADMIN" type="text">
+                </div>
+                <button class="btn btn-secondary" type="submit">Set Roles</button>
+            </form>
 
-<form id="setRolesForm">
-    <label>Username: <input id="setRolesUsername" required type="text"></label><br/>
-    <label>Roles (comma separated): <input id="setRoles" placeholder="e.g. USER,ADMIN" type="text"></label><br/>
-    <button type="submit">Set Roles</button>
-</form>
-<div id="roleMessage"></div>
+            <div class="mt-2 text-success" id="roleMessage"></div>
+        </div>
+    </div>
 
-<hr/>
+    <!-- Delete User -->
+    <div class="card mb-4">
+        <div class="card-header">Delete User</div>
+        <div class="card-body">
+            <form id="deleteUserForm">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input class="form-control" id="deleteUsername" required type="text">
+                </div>
+                <button class="btn btn-danger" type="submit">Delete User</button>
+            </form>
+            <div class="mt-2 text-success" id="deleteMessage"></div>
+        </div>
+    </div>
 
-<!-- Delete User -->
-<h2>Delete User</h2>
-<form id="deleteUserForm">
-    <label>Username: <input id="deleteUsername" required type="text"></label><br/>
-    <button type="submit">Delete User</button>
-</form>
-<div id="deleteMessage"></div>
-
-<hr/>
-
-<!-- Actuator Info -->
-<h2>System Info</h2>
-<button id="loadInfoBtn">Load Actuator Info</button>
-<pre id="infoResult"></pre>
+    <!-- Actuator Info -->
+    <div class="card mb-4">
+        <div class="card-header">System Info</div>
+        <div class="card-body">
+            <button class="btn btn-info mb-2" id="loadInfoBtn">Load Actuator Info</button>
+            <pre class="bg-light p-3 border rounded" id="infoResult"></pre>
+        </div>
+    </div>
+</section>
 
 <script>
     const token = localStorage.getItem("token");
@@ -66,7 +96,6 @@
         window.location.href = "/login";
     }
 
-    // Helper to make authorized requests
     function apiFetch(url, options = {}) {
         return fetch(url, {
             ...options,
@@ -78,7 +107,6 @@
         });
     }
 
-    // Reset password
     document.getElementById("resetPasswordForm").addEventListener("submit", function (e) {
         e.preventDefault();
         const username = document.getElementById("resetUsername").value;
@@ -90,10 +118,9 @@
         })
             .then(res => res.json())
             .then(data => document.getElementById("resetPasswordMessage").textContent = data.message)
-            .catch(err => document.getElementById("resetPasswordMessage").textContent = "Error resetting password.");
+            .catch(() => document.getElementById("resetPasswordMessage").textContent = "Error resetting password.");
     });
 
-    // Add role
     document.getElementById("addRoleForm").addEventListener("submit", function (e) {
         e.preventDefault();
         const username = document.getElementById("addRoleUsername").value;
@@ -105,10 +132,9 @@
         })
             .then(res => res.json())
             .then(data => document.getElementById("roleMessage").textContent = data.message)
-            .catch(err => document.getElementById("roleMessage").textContent = "Error adding role.");
+            .catch(() => document.getElementById("roleMessage").textContent = "Error adding role.");
     });
 
-    // Set roles
     document.getElementById("setRolesForm").addEventListener("submit", function (e) {
         e.preventDefault();
         const username = document.getElementById("setRolesUsername").value;
@@ -121,10 +147,9 @@
         })
             .then(res => res.json())
             .then(data => document.getElementById("roleMessage").textContent = data.message)
-            .catch(err => document.getElementById("roleMessage").textContent = "Error setting roles.");
+            .catch(() => document.getElementById("roleMessage").textContent = "Error setting roles.");
     });
 
-    // Delete user
     document.getElementById("deleteUserForm").addEventListener("submit", function (e) {
         e.preventDefault();
         const username = document.getElementById("deleteUsername").value;
@@ -137,17 +162,13 @@
                 return res.text();
             })
             .then(msg => document.getElementById("deleteMessage").textContent = msg)
-            .catch(err => document.getElementById("deleteMessage").textContent = "Error deleting user.");
+            .catch(() => document.getElementById("deleteMessage").textContent = "Error deleting user.");
     });
 
-    // Load actuator info
     document.getElementById("loadInfoBtn").addEventListener("click", () => {
         fetch("/actuator/info")
             .then(res => res.json())
             .then(data => document.getElementById("infoResult").textContent = JSON.stringify(data, null, 2))
-            .catch(err => document.getElementById("infoResult").textContent = "Failed to load info.");
+            .catch(() => document.getElementById("infoResult").textContent = "Failed to load info.");
     });
 </script>
-
-</body>
-</html>
