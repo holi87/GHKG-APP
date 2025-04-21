@@ -1,4 +1,4 @@
-package ghkg.web;
+package ghkg.web.pages;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

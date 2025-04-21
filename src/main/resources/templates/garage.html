@@ -1,169 +1,47 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en-GB"
+      layout:decorate="~{base}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Garage</title>
+    <title layout:fragment="title">Garage</title>
 </head>
+
 <body>
-<h1>Garage</h1>
-<a href="/">← Back to Home</a>
+<main layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Garage</h1>
+    </div>
 
-<h2>Cars</h2>
-<ul id="carList"></ul>
+    <div class="text-danger mb-3" id="message"></div>
 
-<h2>Add / Edit Car</h2>
-<form id="carForm">
-    <input id="carId" type="hidden"/>
-    <label for="name">Name:</label>
-    <input id="name" required type="text"/><br/>
+    <h2>Cars</h2>
+    <ul class="list-group mb-4" id="carList"></ul>
 
-    <label for="fuelType">Fuel Type:</label>
-    <select id="fuelType" required></select><br/>
+    <h2>Add / Edit Car</h2>
+    <form id="carForm">
+        <input id="carId" type="hidden"/>
 
-    <label for="engineCapacity">Engine Capacity (cc):</label>
-    <input id="engineCapacity" min="0" required type="number"/><br/>
+        <div class="mb-3">
+            <label class="form-label" for="name">Name:</label>
+            <input class="form-control" id="name" required type="text"/>
+        </div>
 
-    <button type="submit">Save</button>
-</form>
+        <div class="mb-3">
+            <label class="form-label" for="fuelType">Fuel Type:</label>
+            <select class="form-select" id="fuelType" required></select>
+        </div>
 
-<div id="message"></div>
+        <div class="mb-3">
+            <label class="form-label" for="engineCapacity">Engine Capacity (cc):</label>
+            <input class="form-control" id="engineCapacity" min="0" required type="number"/>
+        </div>
 
-<script>
-    const token = localStorage.getItem("token");
+        <button class="btn btn-success" type="submit">Save</button>
+    </form>
+    <script src="/js/garage.js"></script>
+</main>
 
-    if (!token) {
-        document.getElementById("message").textContent = "Not authenticated.";
-    }
-
-    const carList = document.getElementById("carList");
-    const carForm = document.getElementById("carForm");
-    const carIdField = document.getElementById("carId");
-    const nameField = document.getElementById("name");
-    const fuelTypeField = document.getElementById("fuelType");
-    const engineCapacityField = document.getElementById("engineCapacity");
-    const messageDiv = document.getElementById("message");
-
-    function loadFuelTypes() {
-        fetch("/api/enums/fuel-types")
-            .then(response => response.json())
-            .then(data => {
-                fuelTypeField.innerHTML = "";
-                data.forEach(type => {
-                    const option = document.createElement("option");
-                    option.value = type;
-                    option.textContent = type;
-                    fuelTypeField.appendChild(option);
-                });
-            });
-    }
-
-    function loadCars() {
-        fetch("/api/cars", {
-            headers: {
-                "Authorization": "Bearer " + token
-            }
-        })
-            .then(response => {
-                if (!response.ok) throw new Error("Unauthorized");
-                return response.json();
-            })
-            .then(data => {
-                const cars = Array.isArray(data) ? data : data.content || [];
-                carList.innerHTML = "";
-
-                if (cars.length === 0) {
-                    const li = document.createElement("li");
-                    li.textContent = "No cars available.";
-                    carList.appendChild(li);
-                } else {
-                    cars.forEach(car => {
-                        const li = document.createElement("li");
-                        li.innerHTML = `${car.name} (${car.fuelType}, ${car.engineCapacity}cc)
-                <button onclick="editCar('${car.id}')">Edit</button>
-                <button onclick="deleteCar('${car.id}')">Delete</button>`;
-                        carList.appendChild(li);
-                    });
-                }
-            })
-            .catch(err => {
-                messageDiv.textContent = err.message;
-            });
-    }
-
-    carForm.addEventListener("submit", function (e) {
-        e.preventDefault();
-        const car = {
-            name: nameField.value,
-            fuelType: fuelTypeField.value,
-            engineCapacity: parseInt(engineCapacityField.value)
-        };
-
-        const method = carIdField.value ? "PUT" : "POST";
-        const url = carIdField.value ? `/api/cars/${carIdField.value}` : "/api/cars";
-
-        fetch(url, {
-            method: method,
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token
-            },
-            body: JSON.stringify(car)
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Failed to save car");
-                return res.json();
-            })
-            .then(() => {
-                messageDiv.textContent = "Car saved successfully.";
-                carForm.reset();
-                carIdField.value = "";
-                loadCars();
-            })
-            .catch(err => {
-                messageDiv.textContent = err.message;
-            });
-    });
-
-    window.editCar = function (id) {
-        fetch(`/api/cars/${id}`, {
-            headers: {
-                "Authorization": "Bearer " + token
-            }
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Failed to load car");
-                return res.json();
-            })
-            .then(car => {
-                carIdField.value = car.id;
-                nameField.value = car.name;
-                fuelTypeField.value = car.fuelType;
-                engineCapacityField.value = car.engineCapacity;
-            });
-    };
-
-    window.deleteCar = function (id) {
-        if (!confirm("Are you sure you want to delete this car?")) return;
-
-        fetch(`/api/cars/${id}`, {
-            method: "DELETE",
-            headers: {
-                "Authorization": "Bearer " + token
-            }
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Failed to delete car");
-                loadCars();
-                messageDiv.textContent = "Car deleted.";
-            })
-            .catch(err => {
-                messageDiv.textContent = err.message;
-            });
-    };
-
-    loadFuelTypes();
-    loadCars();
-</script>
 
 </body>
 </html>

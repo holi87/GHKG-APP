@@ -1,153 +1,51 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en-GB" layout:decorate="~{base}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin Panel</title>
+    <title layout:fragment="title">Admin Panel</title>
 </head>
 <body>
+<main layout:fragment="content">
+    <h2>Admin Panel</h2>
 
-<h1>Admin Panel</h1>
-<a href="/">← Back to Home</a>
-<hr/>
+    <!-- Reset Password -->
+    <form class="mb-3" id="resetPasswordForm">
+        <input class="form-control mb-2" id="resetUsername" placeholder="Username" type="text">
+        <input class="form-control mb-2" id="resetNewPassword" placeholder="New Password" type="password">
+        <button class="btn btn-success" type="submit">Reset Password</button>
+        <div class="mt-2 text-danger" id="resetPasswordMessage"></div>
+    </form>
 
-<!-- Reset Password -->
-<h2>Reset User Password</h2>
-<form id="resetPasswordForm">
-    <label>Username: <input id="resetUsername" required type="text"></label><br/>
-    <label>New Password: <input id="resetNewPassword" required type="password"></label><br/>
-    <button type="submit">Reset Password</button>
-</form>
-<div id="resetPasswordMessage"></div>
+    <!-- Add Role -->
+    <form class="mb-3" id="addRoleForm">
+        <input class="form-control mb-2" id="addRoleUsername" placeholder="Username" type="text">
+        <input class="form-control mb-2" id="addRole" placeholder="Role to Add (e.g., USER)" type="text">
+        <button class="btn btn-primary" type="submit">Add Role</button>
+    </form>
 
-<hr/>
+    <!-- Set Roles -->
+    <form class="mb-3" id="setRolesForm">
+        <input class="form-control mb-2" id="setRolesUsername" placeholder="Username" type="text">
+        <input class="form-control mb-2" id="setRoles" placeholder="Roles (comma-separated)" type="text">
+        <button class="btn btn-warning" type="submit">Set Roles</button>
+        <div class="mt-2 text-danger" id="roleMessage"></div>
+    </form>
 
-<!-- Role Management -->
-<h2>Manage User Roles</h2>
-<form id="addRoleForm">
-    <label>Username: <input id="addRoleUsername" required type="text"></label><br/>
-    <label>Role:
-        <select id="addRole">
-            <option value="USER">USER</option>
-            <option value="WORKER">WORKER</option>
-            <option value="ADMIN">ADMIN</option>
-        </select>
-    </label><br/>
-    <button type="submit">Add Role</button>
-</form>
+    <!-- Delete User -->
+    <form class="mb-3" id="deleteUserForm">
+        <input class="form-control mb-2" id="deleteUsername" placeholder="Username" type="text">
+        <button class="btn btn-danger" type="submit">Delete User</button>
+        <div class="mt-2 text-danger" id="deleteMessage"></div>
+    </form>
 
-<form id="setRolesForm">
-    <label>Username: <input id="setRolesUsername" required type="text"></label><br/>
-    <label>Roles (comma separated): <input id="setRoles" placeholder="e.g. USER,ADMIN" type="text"></label><br/>
-    <button type="submit">Set Roles</button>
-</form>
-<div id="roleMessage"></div>
+    <!-- Info -->
+    <div class="mt-4">
+        <button class="btn btn-info" id="loadInfoBtn">Fetch Info</button>
+        <pre class="mt-2" id="infoResult"></pre>
+    </div>
 
-<hr/>
-
-<!-- Delete User -->
-<h2>Delete User</h2>
-<form id="deleteUserForm">
-    <label>Username: <input id="deleteUsername" required type="text"></label><br/>
-    <button type="submit">Delete User</button>
-</form>
-<div id="deleteMessage"></div>
-
-<hr/>
-
-<!-- Actuator Info -->
-<h2>System Info</h2>
-<button id="loadInfoBtn">Load Actuator Info</button>
-<pre id="infoResult"></pre>
-
-<script>
-    const token = localStorage.getItem("token");
-    if (!token) {
-        alert("You must be logged in as admin to access this page.");
-        window.location.href = "/login";
-    }
-
-    // Helper to make authorized requests
-    function apiFetch(url, options = {}) {
-        return fetch(url, {
-            ...options,
-            headers: {
-                ...(options.headers || {}),
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json"
-            }
-        });
-    }
-
-    // Reset password
-    document.getElementById("resetPasswordForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const username = document.getElementById("resetUsername").value;
-        const newPassword = document.getElementById("resetNewPassword").value;
-
-        apiFetch(`/api/admin/users/${username}/password`, {
-            method: "PATCH",
-            body: JSON.stringify({newPassword})
-        })
-            .then(res => res.json())
-            .then(data => document.getElementById("resetPasswordMessage").textContent = data.message)
-            .catch(err => document.getElementById("resetPasswordMessage").textContent = "Error resetting password.");
-    });
-
-    // Add role
-    document.getElementById("addRoleForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const username = document.getElementById("addRoleUsername").value;
-        const role = document.getElementById("addRole").value;
-
-        apiFetch(`/api/admin/users/${username}/roles`, {
-            method: "PATCH",
-            body: JSON.stringify({role})
-        })
-            .then(res => res.json())
-            .then(data => document.getElementById("roleMessage").textContent = data.message)
-            .catch(err => document.getElementById("roleMessage").textContent = "Error adding role.");
-    });
-
-    // Set roles
-    document.getElementById("setRolesForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const username = document.getElementById("setRolesUsername").value;
-        const rolesStr = document.getElementById("setRoles").value;
-        const roles = rolesStr.split(",").map(r => r.trim());
-
-        apiFetch(`/api/admin/users/${username}/roles`, {
-            method: "PUT",
-            body: JSON.stringify({roles})
-        })
-            .then(res => res.json())
-            .then(data => document.getElementById("roleMessage").textContent = data.message)
-            .catch(err => document.getElementById("roleMessage").textContent = "Error setting roles.");
-    });
-
-    // Delete user
-    document.getElementById("deleteUserForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const username = document.getElementById("deleteUsername").value;
-
-        apiFetch(`/api/admin/users/${username}`, {
-            method: "DELETE"
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Delete failed");
-                return res.text();
-            })
-            .then(msg => document.getElementById("deleteMessage").textContent = msg)
-            .catch(err => document.getElementById("deleteMessage").textContent = "Error deleting user.");
-    });
-
-    // Load actuator info
-    document.getElementById("loadInfoBtn").addEventListener("click", () => {
-        fetch("/actuator/info")
-            .then(res => res.json())
-            .then(data => document.getElementById("infoResult").textContent = JSON.stringify(data, null, 2))
-            .catch(err => document.getElementById("infoResult").textContent = "Failed to load info.");
-    });
-</script>
-
+    <!-- JS -->
+    <script src="/js/admin.js"></script>
+</main>
 </body>
 </html>

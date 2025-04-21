@@ -1,184 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB"
+      layout:decorate="~{base}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
-    <meta charset="UTF-8">
-    <title>Trips</title>
+    <title layout:fragment="title">Trips</title>
 </head>
+
 <body>
-<h1>Trips</h1>
-<a href="/">← Back to Home</a>
+<main layout:fragment="content">
 
-<div id="tripList"></div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Trips</h1>
+        <button class="btn btn-primary" id="addTripBtn" style="display:none;">Add New Trip</button>
+    </div>
 
-<div id="tripFormContainer" style="display: none;">
-    <h2 id="formTitle">Add Trip</h2>
-    <form id="tripForm">
-        <input id="tripId" type="hidden">
-        <label>Name: <input id="tripName" required type="text"></label><br/>
-        <label>Type:
-            <select id="tripType" required>
-                <option value="">-- Select --</option>
-            </select>
-        </label><br/>
-        <label>Start Location: <input id="tripStart" required type="text"></label><br/>
-        <label>Destination: <input id="tripEnd" required type="text"></label><br/>
-        <label>Distance (km): <input id="tripDistance" min="0" required type="number"></label><br/>
-        <label>Duration (e.g. PT2H30M): <input id="tripDuration" required type="text"></label><br/>
-        <label>Rating (0-10): <input id="tripRating" max="10" min="0" required type="number"></label><br/>
-        <button id="saveTripBtn" type="submit">Save Trip</button>
-        <button onclick="hideForm()" type="button">Cancel</button>
-    </form>
-</div>
+    <div class="text-danger mb-3" id="message"></div>
 
-<div id="addTripSection" style="display: none;">
-    <button onclick="showForm()">Add New Trip</button>
-</div>
 
-<script>
-    const token = localStorage.getItem("token");
-    let userRoles = [];
+    <ul class="list-group mb-4" id="tripList"></ul>
 
-    function fetchTrips() {
-        fetch("/api/trips", {
-            headers: {
-                "Authorization": "Bearer " + token
-            }
-        })
-            .then(res => res.json())
-            .then(trips => {
-                const tripList = document.getElementById("tripList");
-                tripList.innerHTML = "<ul>" + trips.map(trip => `
-                    <li>
-                        <strong>${trip.name}</strong> (${trip.type})<br/>
-                        From ${trip.startLocation} to ${trip.destination}, ${trip.distance} km, ${trip.duration}, Rating: ${trip.rating}
-                        ${userRoles.includes("WORKER") || userRoles.includes("ADMIN") ? `<button onclick="editTrip(${trip.id})">Edit</button>` : ""}
-                        ${userRoles.includes("ADMIN") ? `<button onclick="deleteTrip(${trip.id})">Delete</button>` : ""}
-                    </li>
-                `).join("") + "</ul>";
-            });
-    }
+    <div class="card" id="tripFormContainer" style="display:none;">
+        <div class="card-header">
+            <h5 id="formTitle">Add Trip</h5>
+        </div>
+        <div class="card-body">
+            <form id="tripForm">
+                <input id="tripId" type="hidden"/>
 
-    function showForm(trip = null) {
-        document.getElementById("tripFormContainer").style.display = "block";
-        document.getElementById("formTitle").textContent = trip ? "Edit Trip" : "Add Trip";
-        if (trip) {
-            document.getElementById("tripId").value = trip.id;
-            document.getElementById("tripName").value = trip.name;
-            document.getElementById("tripType").value = trip.type;
-            document.getElementById("tripStart").value = trip.startLocation;
-            document.getElementById("tripEnd").value = trip.destination;
-            document.getElementById("tripDistance").value = trip.distance;
-            document.getElementById("tripDuration").value = trip.duration;
-            document.getElementById("tripRating").value = trip.rating;
-        } else {
-            document.getElementById("tripForm").reset();
-            document.getElementById("tripId").value = "";
-        }
-    }
+                <div class="mb-3">
+                    <label class="form-label" for="tripName">Name:</label>
+                    <input class="form-control" id="tripName" required type="text">
+                </div>
 
-    function hideForm() {
-        document.getElementById("tripFormContainer").style.display = "none";
-        document.getElementById("tripForm").reset();
-    }
+                <div class="mb-3">
+                    <label class="form-label" for="tripType">Type:</label>
+                    <select class="form-select" id="tripType" required>
+                        <option value="">-- Select --</option>
+                    </select>
+                </div>
 
-    function editTrip(id) {
-        fetch(`/api/trips/${id}`, {
-            headers: {
-                "Authorization": "Bearer " + token
-            }
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Unauthorized");
-                return res.json();
-            })
-            .then(trip => {
-                showForm(trip);
-            });
-    }
+                <div class="mb-3">
+                    <label class="form-label" for="tripStart">Start Location:</label>
+                    <input class="form-control" id="tripStart" required type="text">
+                </div>
 
-    function deleteTrip(id) {
-        if (!confirm("Are you sure you want to delete this trip?")) return;
-        fetch(`/api/trips/${id}`, {
-            method: "DELETE",
-            headers: {
-                "Authorization": "Bearer " + token
-            }
-        }).then(() => fetchTrips());
-    }
+                <div class="mb-3">
+                    <label class="form-label" for="tripEnd">Destination:</label>
+                    <input class="form-control" id="tripEnd" required type="text">
+                </div>
 
-    document.getElementById("tripForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const id = document.getElementById("tripId").value;
-        const method = id ? "PUT" : "POST";
-        const url = id ? `/api/trips/${id}` : "/api/trips";
+                <div class="mb-3">
+                    <label class="form-label" for="tripDistance">Distance (km):</label>
+                    <input class="form-control" id="tripDistance" min="0" required type="number">
+                </div>
 
-        const trip = {
-            name: document.getElementById("tripName").value,
-            type: document.getElementById("tripType").value,
-            startLocation: document.getElementById("tripStart").value,
-            destination: document.getElementById("tripEnd").value,
-            distance: parseFloat(document.getElementById("tripDistance").value),
-            duration: document.getElementById("tripDuration").value,
-            rating: parseInt(document.getElementById("tripRating").value)
-        };
+                <div class="mb-3">
+                    <label class="form-label" for="tripDuration">Duration (e.g. PT2H30M):</label>
+                    <input class="form-control" id="tripDuration" required type="text">
+                </div>
 
-        fetch(url, {
-            method: method,
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token
-            },
-            body: JSON.stringify(trip)
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Failed to save trip");
-                return res.json();
-            })
-            .then(() => {
-                hideForm();
-                fetchTrips();
-            })
-            .catch(err => alert(err.message));
-    });
+                <div class="mb-3">
+                    <label class="form-label" for="tripRating">Rating (0-10):</label>
+                    <input class="form-control" id="tripRating" max="10" min="0" required type="number">
+                </div>
 
-    function checkRoleAndInit() {
-        if (!token) return;
+                <button class="btn btn-success" type="submit">Save</button>
+                <button class="btn btn-secondary ms-2" onclick="hideForm()" type="button">Cancel</button>
+            </form>
+        </div>
+    </div>
 
-        fetch("/api/me", {
-            headers: {
-                "Authorization": "Bearer " + token
-            }
-        })
-            .then(res => res.ok ? res.json() : Promise.reject())
-            .then(user => {
-                userRoles = user.roles;
-                if (userRoles.includes("WORKER") || userRoles.includes("ADMIN")) {
-                    document.getElementById("addTripSection").style.display = "block";
-                }
-                loadTripTypes();  // <--- TU
-                fetchTrips();
-            })
-            .catch(() => {
-                document.getElementById("tripList").textContent = "Unauthorized.";
-            });
-    }
+    <script src="/js/trips.js"></script>
 
-    function loadTripTypes() {
-        fetch("/api/enums/trip-types")
-            .then(res => res.json())
-            .then(types => {
-                const select = document.getElementById("tripType");
-                types.forEach(type => {
-                    const option = document.createElement("option");
-                    option.value = type;
-                    option.textContent = type.charAt(0) + type.slice(1).toLowerCase(); // np. Car
-                    select.appendChild(option);
-                });
-            });
-    }
-
-    checkRoleAndInit();
-</script>
-
+</main>
 </body>
 </html>
