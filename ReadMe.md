@@ -9,7 +9,7 @@
 ## 🐳 Step 1: download image
 
 ```bash
-docker pull gholak87/ghkg-api:latest
+docker pull gholak87/ghkg-app:latest
 ```
 
 ## 🐳 Step 2: run container
