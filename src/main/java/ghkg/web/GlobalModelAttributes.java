@@ -14,7 +14,6 @@ public class GlobalModelAttributes {
     @ModelAttribute("version")
     public String version() {
         String version = versionProvider.getVersion();
-        System.out.println(">>>> Setting version in model: " + version);
         return version != null ? version : "N/A";
     }
 

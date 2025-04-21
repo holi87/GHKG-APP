@@ -2,7 +2,6 @@
 <html lang="en-GB"
       layout:decorate="~{base}"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
-
 <head>
     <title layout:fragment="title">Login</title>
 </head>
@@ -10,7 +9,6 @@
 <body>
 <main layout:fragment="content">
     <h1 class="mb-4">Login</h1>
-    <a href="/">← Back to Home</a>
 
     <form class="mt-3" id="loginForm">
         <div class="mb-3">
@@ -28,36 +26,7 @@
 
     <div class="mt-3 text-danger" id="loginMessage"></div>
 
-    <script>
-        document.getElementById("loginForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-
-            const payload = {
-                username: document.getElementById("username").value,
-                password: document.getElementById("password").value
-            };
-
-            fetch("/api/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payload)
-            })
-                .then(response => {
-                    if (response.ok) return response.json();
-                    throw new Error("Login failed");
-                })
-                .then(data => {
-                    localStorage.setItem("token", data.token);
-                    document.getElementById("loginMessage").textContent = "Login successful!";
-                    window.location.href = "/me";
-                })
-                .catch(err => {
-                    document.getElementById("loginMessage").textContent = err.message;
-                });
-        });
-    </script>
+    <script src="/js/login.js"></script>
 </main>
 </body>
 </html>

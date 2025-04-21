@@ -1,61 +1,77 @@
 <!DOCTYPE html>
-<html lang="en-GB" th:replace="~{base :: layout (~{::title}, ~{::section})}" xmlns:th="http://www.thymeleaf.org">
-
+<html lang="en-GB"
+      layout:decorate="~{base}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
-    <title>Login</title>
+    <title layout:fragment="title">Trips</title>
 </head>
 
-<section>
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h1 class="text-center mb-4">Login</h1>
+<body>
+<main layout:fragment="content">
 
-            <form class="card p-4 shadow" id="loginForm">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Trips</h1>
+        <button class="btn btn-primary" id="addTripBtn" style="display:none;">Add New Trip</button>
+    </div>
+
+    <div class="text-danger mb-3" id="message"></div>
+
+
+    <ul class="list-group mb-4" id="tripList"></ul>
+
+    <div class="card" id="tripFormContainer" style="display:none;">
+        <div class="card-header">
+            <h5 id="formTitle">Add Trip</h5>
+        </div>
+        <div class="card-body">
+            <form id="tripForm">
+                <input id="tripId" type="hidden"/>
+
                 <div class="mb-3">
-                    <label class="form-label" for="username">Username:</label>
-                    <input class="form-control" id="username" name="username" required type="text"/>
+                    <label class="form-label" for="tripName">Name:</label>
+                    <input class="form-control" id="tripName" required type="text">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label" for="password">Password:</label>
-                    <input class="form-control" id="password" name="password" required type="password"/>
+                    <label class="form-label" for="tripType">Type:</label>
+                    <select class="form-select" id="tripType" required>
+                        <option value="">-- Select --</option>
+                    </select>
                 </div>
 
-                <button class="btn btn-primary w-100" type="submit">Login</button>
+                <div class="mb-3">
+                    <label class="form-label" for="tripStart">Start Location:</label>
+                    <input class="form-control" id="tripStart" required type="text">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="tripEnd">Destination:</label>
+                    <input class="form-control" id="tripEnd" required type="text">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="tripDistance">Distance (km):</label>
+                    <input class="form-control" id="tripDistance" min="0" required type="number">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="tripDuration">Duration (e.g. PT2H30M):</label>
+                    <input class="form-control" id="tripDuration" required type="text">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="tripRating">Rating (0-10):</label>
+                    <input class="form-control" id="tripRating" max="10" min="0" required type="number">
+                </div>
+
+                <button class="btn btn-success" type="submit">Save</button>
+                <button class="btn btn-secondary ms-2" onclick="hideForm()" type="button">Cancel</button>
             </form>
-
-            <div class="mt-3 text-center text-danger" id="loginMessage"></div>
         </div>
     </div>
-</section>
 
-<script>
-    document.getElementById("loginForm").addEventListener("submit", function (e) {
-        e.preventDefault();
+    <script src="/js/trips.js"></script>
 
-        const payload = {
-            username: document.getElementById("username").value,
-            password: document.getElementById("password").value
-        };
-
-        fetch("/api/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        })
-            .then(response => {
-                if (response.ok) return response.json();
-                throw new Error("Login failed");
-            })
-            .then(data => {
-                localStorage.setItem("token", data.token);
-                document.getElementById("loginMessage").textContent = "Login successful!";
-                window.location.href = "/me";
-            })
-            .catch(err => {
-                document.getElementById("loginMessage").textContent = err.message;
-            });
-    });
-</script>
+</main>
+</body>
+</html>
