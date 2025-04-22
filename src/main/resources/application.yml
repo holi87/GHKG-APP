@@ -41,8 +41,8 @@ management:
       enabled: true
 info:
   app:
-    name: GHKG API
-    description: API for testing purpose - GHolak and KGomulski
+    name: GHKG APP
+    description: APP with API for testing purpose - GHolak and KGomulski
 
 springdoc:
   default-produces-media-type: application/json
