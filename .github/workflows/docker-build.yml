@@ -28,6 +28,10 @@ jobs:
           VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Prepare Docker image name
+        id: image-name
+        run: echo "name=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -44,6 +48,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name && github.event.repository.name.toLowerCase }}:latest
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name && github.event.repository.name.toLowerCase }}:${{ steps.extract_version.outputs.version }}
-
+            ghcr.io/${{ steps.image-name.outputs.name }}:latest
+            ghcr.io/${{ steps.image-name.outputs.name }}:${{ steps.extract_version.outputs.version }}
