@@ -6,12 +6,7 @@ COPY .mvn/ .mvn
 COPY mvnw ./
 RUN ./mvnw dependency:go-offline
 COPY src ./src
-RUN git init \
- && git config user.email "ci@ghkg" \
- && git config user.name "GHKG CI" \
- && git remote add origin https://github.com/holi87/GHKG-APP.git \
- && git fetch --depth=0 origin master \
- && git checkout master
+RUN git clone https://github.com/holi87/GHKG-APP.git . --depth=1 --branch master
 RUN ./mvnw clean package -DskipTests
 FROM eclipse-temurin:17-jdk
 WORKDIR /app
