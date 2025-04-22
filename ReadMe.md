@@ -22,7 +22,7 @@ The application uses these default values (defined in application.yaml):
 
 ```yaml
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${PORT:8080}
   address: ${SERVER_ADDRESS:localhost}
 ```
 
