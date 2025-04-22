@@ -79,6 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     carForm.addEventListener("submit", function (e) {
         e.preventDefault();
         const car = {
+            id: carIdField.value || null,
             name: nameField.value,
             fuelType: fuelTypeField.value,
             engineCapacity: parseInt(engineCapacityField.value)
@@ -86,7 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const method = carIdField.value ? "PUT" : "POST";
         const url = carIdField.value ? `/api/cars/${carIdField.value}` : "/api/cars";
-
         fetch(url, {
             method: method,
             headers: {
