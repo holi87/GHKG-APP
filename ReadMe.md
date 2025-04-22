@@ -6,20 +6,16 @@
 
 ---
 
-## 🐳 Step 1: download image
+## 🐳 Step 1: download image from GitHub Container Registry
 
 ```bash
-docker pull gholak87/ghkg-app:latest
+docker pull ghcr.io/holi87/ghkg-app:latest
 ```
 
 ## 🐳 Step 2: run container
 
 ```bash
-docker run \
-  -e SERVER_PORT=8080 \
-  -e SERVER_ADDRESS=0.0.0.0 \
-  -p 8080:8080 \
-  gholak87/ghkg-api:latest
+docker run gholak87/ghkg-app:latest
 ```
 
 The application uses these default values (defined in application.yaml):
@@ -36,7 +32,7 @@ server:
 http://localhost:8080
 ```
 
-## 🐳 Step 4: basic admin credentials
+## 🐳 Step 4: basic credentials
 
 ```bash
 usernames: super, admin, user, worker
