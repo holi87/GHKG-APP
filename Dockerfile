@@ -1,4 +1,5 @@
 FROM eclipse-temurin:17-jdk AS builder
+RUN apt-get update && apt-get install -y git
 WORKDIR /app
 COPY pom.xml ./
 COPY .mvn/ .mvn
@@ -9,7 +10,7 @@ RUN git init \
  && git config user.email "ci@ghkg" \
  && git config user.name "GHKG CI" \
  && git remote add origin https://github.com/holi87/GHKG-APP.git \
- && git fetch --depth=1 origin master \
+ && git fetch --depth=0 origin master \
  && git checkout master
 RUN ./mvnw clean package -DskipTests
 FROM eclipse-temurin:17-jdk
