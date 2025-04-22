@@ -44,5 +44,6 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ steps.extract_version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name && github.event.repository.name.toLowerCase }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name && github.event.repository.name.toLowerCase }}:${{ steps.extract_version.outputs.version }}
+
