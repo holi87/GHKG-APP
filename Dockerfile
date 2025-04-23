@@ -12,5 +12,11 @@ RUN ./mvnw clean package -DskipTests
 FROM eclipse-temurin:17-jdk
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Set environment variables with default values
+ENV SPRING_PROFILES_ACTIVE=local
+ENV JAVA_OPTS=""
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dspring.profiles.active=$SPRING_PROFILES_ACTIVE -jar app.jar"]

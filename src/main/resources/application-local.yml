@@ -1,0 +1,21 @@
+server:
+  port: 8080
+  address: localhost
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:ghkg-db
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data-local.sql

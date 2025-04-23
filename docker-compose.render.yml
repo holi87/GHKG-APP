@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ghkg
+      POSTGRES_USER: ghkg
+      POSTGRES_PASSWORD: ghkg
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  ghkg-app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_PROFILES_ACTIVE: render
+      JDBC_DATABASE_URL: jdbc:postgresql://postgres:5432/ghkg
+      JDBC_DATABASE_USERNAME: ghkg
+      JDBC_DATABASE_PASSWORD: ghkg
+
+volumes:
+  pgdata:
