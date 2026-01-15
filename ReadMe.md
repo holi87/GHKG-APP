@@ -32,6 +32,13 @@ server:
 http://localhost:8080
 ```
 
+## 📚 OpenAPI / Swagger
+
+- Spec JSON: `http://localhost:8080/v3/api-docs`
+- UI: `http://localhost:8080/swagger-ui/index.html`
+
+Auth dla endpointów zabezpieczonych: nagłówek `Authorization: Bearer <JWT>`.
+
 ## 🐳 Step 4: basic credentials
 
 ```bash
