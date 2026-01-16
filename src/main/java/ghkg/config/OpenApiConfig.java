@@ -22,13 +22,14 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("GH & KG API")
-                        .description("API for testers")
+                        .title("GHKG API")
+                        .description("Public API documentation for GHKG-APP")
                         .version(buildProperties.getVersion() + " (" + gitProperties.getShortCommitId() + ")"))
-                .addSecurityItem(new SecurityRequirement().addList("basicAuth"))
-                .components(new Components().addSecuritySchemes("basicAuth",
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+                .components(new Components().addSecuritySchemes("bearerAuth",
                         new SecurityScheme()
                                 .type(SecurityScheme.Type.HTTP)
-                                .scheme("basic")));
+                                .scheme("bearer")
+                                .bearerFormat("JWT")));
     }
 }
