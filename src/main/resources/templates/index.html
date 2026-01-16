@@ -7,13 +7,31 @@
 </head>
 <body>
 <main layout:fragment="content">
-    <ul class="list-group mb-4">
-        <li class="list-group-item" id="loginLink"><a href="/login">Login Page</a></li>
-        <li class="list-group-item" id="meLink" style="display: none;"><a href="/me">User Info</a></li>
-        <li class="list-group-item" id="adminLink" style="display: none;"><a href="/admin">Admin Panel</a></li>
-        <li class="list-group-item"><a href="/garage">Garage</a></li>
-        <li class="list-group-item"><a href="/trips">Trips</a></li>
-        <li class="list-group-item"><a href="/swagger-ui/index.html" target="_blank">Swagger UI</a></li>
+    <ul class="list-group app-link-list mb-4">
+        <li class="list-group-item d-flex align-items-center gap-3" id="loginLink">
+            <span class="app-link-icon">🔐</span>
+            <a href="/login">Login Page</a>
+        </li>
+        <li class="list-group-item d-flex align-items-center gap-3" id="meLink" style="display: none;">
+            <span class="app-link-icon">👤</span>
+            <a href="/me">User Info</a>
+        </li>
+        <li class="list-group-item d-flex align-items-center gap-3" id="adminLink" style="display: none;">
+            <span class="app-link-icon">🛠️</span>
+            <a href="/admin">Admin Panel</a>
+        </li>
+        <li class="list-group-item d-flex align-items-center gap-3">
+            <span class="app-link-icon">🚗</span>
+            <a href="/garage">Garage</a>
+        </li>
+        <li class="list-group-item d-flex align-items-center gap-3">
+            <span class="app-link-icon">🧭</span>
+            <a href="/trips">Trips</a>
+        </li>
+        <li class="list-group-item d-flex align-items-center gap-3">
+            <span class="app-link-icon">📘</span>
+            <a href="/swagger-ui/index.html" target="_blank" rel="noopener">Swagger UI</a>
+        </li>
     </ul>
 
     <div class="text-center mb-3" id="authActions"></div>
